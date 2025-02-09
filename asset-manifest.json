@@ -1,0 +1,24 @@
+{
+  "files": {
+    "main.css": "/elective-selection-simulation/static/css/main.526336f6.chunk.css",
+    "main.js": "/elective-selection-simulation/static/js/main.1ca6c6df.chunk.js",
+    "main.js.map": "/elective-selection-simulation/static/js/main.1ca6c6df.chunk.js.map",
+    "runtime-main.js": "/elective-selection-simulation/static/js/runtime-main.ce384c36.js",
+    "runtime-main.js.map": "/elective-selection-simulation/static/js/runtime-main.ce384c36.js.map",
+    "static/js/2.9cc80c56.chunk.js": "/elective-selection-simulation/static/js/2.9cc80c56.chunk.js",
+    "static/js/2.9cc80c56.chunk.js.map": "/elective-selection-simulation/static/js/2.9cc80c56.chunk.js.map",
+    "static/js/3.a890434d.chunk.js": "/elective-selection-simulation/static/js/3.a890434d.chunk.js",
+    "static/js/3.a890434d.chunk.js.map": "/elective-selection-simulation/static/js/3.a890434d.chunk.js.map",
+    "index.html": "/elective-selection-simulation/index.html",
+    "precache-manifest.ba9ab07fe769a449b56f85ba02c251b7.js": "/elective-selection-simulation/precache-manifest.ba9ab07fe769a449b56f85ba02c251b7.js",
+    "service-worker.js": "/elective-selection-simulation/service-worker.js",
+    "static/css/main.526336f6.chunk.css.map": "/elective-selection-simulation/static/css/main.526336f6.chunk.css.map",
+    "static/js/2.9cc80c56.chunk.js.LICENSE.txt": "/elective-selection-simulation/static/js/2.9cc80c56.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.ce384c36.js",
+    "static/js/2.9cc80c56.chunk.js",
+    "static/css/main.526336f6.chunk.css",
+    "static/js/main.1ca6c6df.chunk.js"
+  ]
+}

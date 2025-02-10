@@ -34,7 +34,8 @@ const electivesData = {
     { name: "Negotiation and Bargaining", major: "Open Electives", color: "#CCCCCC" },
     { name: "Spatial Computing in Marketing", major: "Marketing, Digital Strategy", color: "#FF9999", crossListed: true },
     { name: "Big Data & Cloud Analytics", major: "Analytics, Digital Strategy", color: "#FFCC99", crossListed: true },
-    { name: "Financial Risk Analytics", major: "Finance, Analytics", color: "#99FF99", crossListed: true }
+    { name: "Financial Risk Analytics", major: "Finance, Analytics", color: "#99FF99", crossListed: true },
+    { name: "Demand Planning & Forecasting", major: "Operations", color: "#FFFF99" }
   ],
   7: [
     { name: "Services Marketing", major: "Marketing", color: "#FF9999" },
@@ -44,7 +45,8 @@ const electivesData = {
     { name: "Game Theory", major: "Open Electives", color: "#CCCCCC" },
     { name: "HR Analytics", major: "Analytics, Open Electives", color: "#FFCC99", crossListed: true },
     { name: "Personal and Behavioral Finance", major: "Finance", color: "#99FF99" },
-    { name: "Alternative Investments (0.5 credit)", major: "Finance", color: "#99FF99" }
+    { name: "Alternative Investments (0.5 credit)", major: "Finance", color: "#99FF99" },
+    { name: "Business Ethics in Practice", major: "Open Electives", color: "#CCCCCC" }
   ]
 };
 

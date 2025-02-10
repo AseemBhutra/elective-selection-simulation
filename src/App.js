@@ -195,30 +195,47 @@ function App() {
   };
 
   const handleCheck = () => {
+    let validationErrors = [];
+
     // Check total number of selected electives
     const totalSelected = Object.values(selectedElectives).flat().length;
     if (totalSelected !== 14) {
-      showMessagePopup(`You have selected ${totalSelected} electives. Please select exactly 14 electives.`);
-      return;
+      validationErrors.push(`Missing ${14 - totalSelected} electives`);
     }
 
     // Check term limits
     for (const term in termLimits) {
       const selectedCount = selectedElectives[term].length;
-      if (selectedCount < termLimits[term].min || selectedCount > termLimits[term].max) {
-        showMessagePopup(`Term ${term} must have between ${termLimits[term].min} and ${termLimits[term].max} electives.`);
-        return;
+      if (selectedCount < termLimits[term].min) {
+        validationErrors.push(`Term ${term}: Add ${termLimits[term].min - selectedCount} more electives`);
+      } else if (selectedCount > termLimits[term].max) {
+        validationErrors.push(`Term ${term}: Remove ${selectedCount - termLimits[term].max} electives`);
       }
     }
 
-    // Check major/minor/general management criteria
+    // Check major/minor requirements
     const outcome = determineMajorMinor();
-    if (outcome.includes("No major or minor yet")) {
-      showMessagePopup("Your selection does not meet the criteria for a major, minor, or general management.");
-      return;
+    if (outcome.startsWith("Minor:") && !outcome.includes("Major:")) {
+      validationErrors.push("Need 2 more courses in your strongest area to complete a major");
+    } else if (outcome.startsWith("No major")) {
+      validationErrors.push("Need 6 courses in one area to complete a major");
     }
 
-    showMessagePopup("Your selection is valid!");
+    if (validationErrors.length > 0) {
+      setMessagePopup({
+        visible: true,
+        type: 'error',
+        title: 'Required Changes:',
+        message: validationErrors
+      });
+    } else {
+      setMessagePopup({
+        visible: true,
+        type: 'success',
+        title: 'Valid Selection',
+        message: [`${outcome}`]
+      });
+    }
   };
 
   const totalSelectedElectives = Object.values(selectedElectives).flat().length;
@@ -236,80 +253,102 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* Left Panel - Term-Wise Selection */}
-      <div className="term-selection">
-        {Object.keys(electivesData).map((term) => (
-          <div key={term} className="term-card">
-            <h3>Term {term}</h3>
-            <div className="electives-grid">
-              {electivesData[term].map((elective) => {
-                const isSelected = selectedElectives[term].find((e) => e.name === elective.name);
-                const color = isSelected ? isSelected.color : "#e0e0e0";
-                return (
-                  <div
-                    key={elective.name}
-                    className={`elective-card ${isSelected ? "selected" : ""}`}
-                    style={{ backgroundColor: color }}
-                    onClick={() => handleSelectElective(parseInt(term), elective)}
-                  >
-                    {elective.name}
-                  </div>
-                );
-              })}
+      <header className="app-header">
+        <h1>Elective Selection Simulation</h1>
+        <div className="header-controls">
+          <button className="primary-button" onClick={handleCheck}>
+            Validate Selection
+          </button>
+          <button className="secondary-button" onClick={handleResetSimulation}>
+            Reset
+          </button>
+        </div>
+      </header>
+
+      <div className="main-content">
+        {/* Left Panel - Term-Wise Selection */}
+        <div className="terms-container">
+          {Object.keys(electivesData).map((term) => (
+            <div key={term} className="term-section">
+              <div className="term-header">
+                <h2>Term {term}</h2>
+                <span className="term-count">
+                  {selectedElectives[term].length} / {termLimits[term].max} selected
+                </span>
+              </div>
+              <div className="electives-grid">
+                {electivesData[term].map((elective) => {
+                  const isSelected = selectedElectives[term].find((e) => e.name === elective.name);
+                  const color = isSelected ? isSelected.color : "#e0e0e0";
+                  return (
+                    <div
+                      key={elective.name}
+                      className={`elective-tile ${isSelected ? "selected" : ""} ${elective.crossListed ? "cross-listed" : ""}`}
+                      style={{ backgroundColor: color }}
+                      onClick={() => handleSelectElective(parseInt(term), elective)}
+                    >
+                      <span className="elective-name">{elective.name}</span>
+                      {elective.crossListed && <span className="cross-listed-badge">Cross-listed</span>}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Right Panel - Rules and Summary */}
-      <div className="rules-summary">
-        <h2>Rules and Information</h2>
-        <p>- Each term has a minimum and maximum number of electives.</p>
-        <p>- Cross-listed courses can only be counted once, and you can choose their category.</p>
-        <p>- Color-coded subjects indicate their major:</p>
-        <ul>
-          <li style={{ color: "#99FF99" }}>Finance</li>
-          <li style={{ color: "#9999FF" }}>Digital Strategy</li>
-          <li style={{ color: "#FF9999" }}>Marketing</li>
-          <li style={{ color: "#FFFF99" }}>Operations</li>
-          <li style={{ color: "#FFCC99" }}>Analytics</li>
-          <li style={{ color: "#CCCCCC" }}>Open Electives</li>
-        </ul>
-
-        {/* Counter for Selected Electives */}
-        <div className="selected-electives-counter">
-          <h3>Selected Electives</h3>
-          <p>
-            <strong>{totalSelectedElectives}</strong> out of <strong>14</strong> selected
-          </p>
+          ))}
         </div>
 
-        <h2>Selected Summary</h2>
-        {Object.keys(selectedElectives).map((term) => (
-          <div key={term}>
-            <h3>Term {term}</h3>
-            <ul>
-              {selectedElectives[term].map((elective, idx) => (
-                <li key={idx} style={{ color: elective.color }}>
-                  {elective.name}
-                </li>
-              ))}
-            </ul>
+        {/* Right Panel - Dashboard */}
+        <div className="dashboard">
+          <div className="progress-section">
+            <h2>Selection Progress</h2>
+            <div className="progress-bar">
+              <div 
+                className="progress-fill" 
+                style={{ width: `${(totalSelectedElectives / 14) * 100}%` }}
+              />
+            </div>
+            <div className="progress-stats">
+              <div>
+                <span className="progress-text">
+                  {totalSelectedElectives} of 14
+                </span>
+                <div className="progress-label">Electives Selected</div>
+              </div>
+              <div>
+                <span className="progress-text">
+                  {14 - totalSelectedElectives}
+                </span>
+                <div className="progress-label">Remaining</div>
+              </div>
+            </div>
           </div>
-        ))}
 
-        <h2>Outcome</h2>
-        <p>{determineMajorMinor()}</p>
+          <div className="outcome-section">
+            <h2>Current Outcome</h2>
+            <div className="outcome-card">
+              {determineMajorMinor()}
+            </div>
+          </div>
 
-        {/* Check Button */}
-        <button className="check-button" onClick={handleCheck}>
-          Check Validity
-        </button>
-
-        {/* Reset Button */}
-        <button className="reset-button" onClick={handleResetSimulation}>
-          Reset Simulation
-        </button>
+          <div className="legend-section">
+            <h2>Major Categories</h2>
+            <div className="legend-grid">
+              {[
+                { name: "Finance", color: "#99FF99" },
+                { name: "Digital Strategy", color: "#9999FF" },
+                { name: "Marketing", color: "#FF9999" },
+                { name: "Operations", color: "#FFFF99" },
+                { name: "Analytics", color: "#FFCC99" },
+                { name: "Open Electives", color: "#CCCCCC" }
+              ].map(category => (
+                <div key={category.name} className="legend-item">
+                  <span className="color-dot" style={{ backgroundColor: category.color }}></span>
+                  <span>{category.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Popup for Cross-Listed Courses */}

@@ -1,5 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css"; // Import the CSS file for styling
+import { initializeApp } from "firebase/app";
+import { getAnalytics, logEvent } from "firebase/analytics";
+
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyA0j_LgvfpY-jebtmGea7PVtITzU2GnlPs",
+  authDomain: "elective-simulation.firebaseapp.com",
+  projectId: "elective-simulation",
+  storageBucket: "elective-simulation.firebasestorage.app",
+  messagingSenderId: "337817231462",
+  appId: "1:337817231462:web:1291f45abb6ea4be888da7",
+  measurementId: "G-NKPWHG3BEQ"
+};
 
 const electivesData = {
   4: [
@@ -58,14 +73,23 @@ const termLimits = {
 };
 
 function App() {
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+ // console.log("Firebase App Initialized:", app);
   const [simulationStarted, setSimulationStarted] = useState(false);
   const [selectedElectives, setSelectedElectives] = useState({ 4: [], 5: [], 6: [], 7: [] });
   const [popup, setPopup] = useState({ visible: false, elective: null, term: null });
   const [messagePopup, setMessagePopup] = useState({ visible: false, message: "" });
   
+  useEffect(() => {
+    // Log a page view
+    logEvent(analytics, "page_view", { page_title: "Elective Simulation", page_location: window.location.href });
+  }, []);
+
 
   const handleStartSimulation = () => {
     setSimulationStarted(true);
+    logEvent(analytics, "simulation_started", { time: new Date().toISOString() });
   };
 
   const handleResetSimulation = () => {
@@ -197,6 +221,11 @@ function App() {
   };
 
   const handleCheck = () => {
+    logEvent(analytics, "validate_button_clicked", {
+      timestamp: new Date().toISOString(),
+      total_selected: Object.values(selectedElectives).flat().length
+    });
+
     let validationErrors = [];
 
     // Check total number of selected electives

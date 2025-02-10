@@ -259,25 +259,83 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  animation: fadeIn 0.3s ease-in-out;
 }
 
 .popup-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  z-index: 1001;
-  animation: slideIn 0.3s ease-in-out;
   max-width: 500px;
   width: 90%;
+  padding: 24px;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.popup-content.error {
+  border-left: 5px solid #ff4444;
+}
+
+.popup-content.success {
+  border-left: 5px solid #44cc44;
+}
+
+.popup-title {
+  margin: 0 0 16px 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.popup-title.error {
+  color: #cc0000;
+}
+
+.popup-title.success {
+  color: #007700;
+}
+
+.popup-message-container {
+  margin-bottom: 20px;
+}
+
+.validation-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.validation-item {
+  padding: 8px 0;
+  margin: 4px 0;
+  padding-left: 24px;
+  position: relative;
+  line-height: 1.4;
+}
+
+.validation-item::before {
+  content: "•";
+  position: absolute;
+  left: 8px;
+  color: #666;
+}
+
+.close-button {
+  background: #f0f0f0;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.close-button:hover {
+  background: #e0e0e0;
 }
 
 .category-button {
@@ -409,56 +467,6 @@ body {
   line-height: 1.4;
 }
 
-.close-button {
-  background: #2563eb;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s;
-}
-
-.close-button:hover {
-  background: #1d4ed8;
-}
-
-/* Success message styling */
-.popup-content h3 {
-  color: #1f2937;
-  margin-bottom: 1rem;
-}
-
-.message-content p:first-child {
-  font-weight: 600;
-  font-size: 1.1em;
-}
-
-.popup-content p {
-  white-space: pre-line;
-  line-height: 1.5;
-  margin: 1rem 0;
-}
-
-.popup-title {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.popup-icon {
-  font-size: 1.5rem;
-}
-
-.popup-icon.error {
-  color: #ef4444;
-}
-
-.popup-icon.success {
-  color: #22c55e;
-}
-
 .message-icon {
   flex-shrink: 0;
   font-size: 1.25rem;
@@ -471,20 +479,6 @@ body {
 
 .message-icon.success {
   color: #22c55e;
-}
-
-.close-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-}
-
-.close-button:hover {
-  background-color: #f3f4f6;
 }
 
 .message-item {

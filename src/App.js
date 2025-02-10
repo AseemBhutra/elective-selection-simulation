@@ -203,6 +203,15 @@ function App() {
       validationErrors.push(`Missing ${14 - totalSelected} electives`);
     }
 
+    // Check for at least one open elective
+    const hasOpenElective = Object.values(selectedElectives)
+      .flat()
+      .some(elective => elective.major.includes("Open Electives"));
+    
+    if (!hasOpenElective) {
+      validationErrors.push("Must select at least one Open Elective course");
+    }
+
     // Check term limits
     for (const term in termLimits) {
       const selectedCount = selectedElectives[term].length;
@@ -388,11 +397,25 @@ function App() {
           className="popup-overlay"
           onClick={handleOutsideClick}
         >
-          <div className="popup-content">
-            <h3>Message</h3>
-            <p>{messagePopup.message}</p>
+          <div className={`popup-content ${messagePopup.type}`}>
+            <h3 className={`popup-title ${messagePopup.type}`}>
+              {messagePopup.title}
+            </h3>
+            <div className="popup-message-container">
+              {Array.isArray(messagePopup.message) ? (
+                <ul className="validation-list">
+                  {messagePopup.message.map((msg, index) => (
+                    <li key={index} className="validation-item">
+                      {msg}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>{messagePopup.message}</p>
+              )}
+            </div>
             <button
-              className="cancel-button"
+              className="close-button"
               onClick={() => setMessagePopup({ visible: false, message: "" })}
             >
               Close

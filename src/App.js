@@ -7,13 +7,13 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyA0j_LgvfpY-jebtmGea7PVtITzU2GnlPs",
-  authDomain: "elective-simulation.firebaseapp.com",
-  projectId: "elective-simulation",
-  storageBucket: "elective-simulation.firebasestorage.app",
-  messagingSenderId: "337817231462",
-  appId: "1:337817231462:web:1291f45abb6ea4be888da7",
-  measurementId: "G-NKPWHG3BEQ"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "your-api-key",
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "your-auth-domain",
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "your-project-id",
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "your-storage-bucket",
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "your-sender-id",
+  appId: process.env.REACT_APP_FIREBASE_APP_ID || "your-app-id",
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID || "your-measurement-id"
 };
 
 const electivesData = {
@@ -73,18 +73,29 @@ const termLimits = {
 };
 
 function App() {
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
- // console.log("Firebase App Initialized:", app);
+  // Initialize analytics as null and handle initialization safely
+  const [analytics, setAnalytics] = useState(null);
+
+  useEffect(() => {
+    try {
+      const app = initializeApp(firebaseConfig);
+      const analyticsInstance = getAnalytics(app);
+      setAnalytics(analyticsInstance);
+    } catch (error) {
+      console.error("Firebase initialization error:", error);
+    }
+  }, []);
+
   const [simulationStarted, setSimulationStarted] = useState(false);
   const [selectedElectives, setSelectedElectives] = useState({ 4: [], 5: [], 6: [], 7: [] });
   const [popup, setPopup] = useState({ visible: false, elective: null, term: null });
   const [messagePopup, setMessagePopup] = useState({ visible: false, message: "" });
   
   useEffect(() => {
-    // Log a page view
-    logEvent(analytics, "page_view", { page_title: "Elective Simulation", page_location: window.location.href });
-  }, []);
+    if (analytics) {
+      logEvent(analytics, "page_view", { page_title: "Elective Simulation", page_location: window.location.href });
+    }
+  }, [analytics]);
 
 
   const handleStartSimulation = () => {
@@ -119,6 +130,17 @@ function App() {
         // Deselect the elective
         updatedSelection[term] = updatedSelection[term].filter((item) => item.name !== elective.name);
       } else {
+        // Check prerequisites for Deep Learning & AI and NLP
+        if (elective.name === "Deep Learning & AI" || elective.name === "Natural Language Processing") {
+          const ml1Selected = Object.values(updatedSelection).flat().some(e => e.name === "Machine Learning I");
+          const ml2Selected = Object.values(updatedSelection).flat().some(e => e.name === "Machine Learning II");
+          
+          if (!ml1Selected || !ml2Selected) {
+            showMessagePopup("Prerequisites Required: Machine Learning I and Machine Learning II must be selected before taking this course.");
+            return updatedSelection;
+          }
+        }
+
         // Check term limits
         if (updatedSelection[term].length >= termLimits[term].max) {
           showMessagePopup(`You can select a maximum of ${termLimits[term].max} electives for Term ${term}.`);
@@ -171,9 +193,9 @@ function App() {
 
     // Count the number of courses in each area
     Object.values(selectedElectives).flat().forEach((elective) => {
-      const majors = elective.major.split(",");
+      const majors = elective.major.split(",").map(m => m.trim());
       majors.forEach((major) => {
-        counts[major.trim()] = (counts[major.trim()] || 0) + 1;
+        counts[major] = (counts[major] || 0) + 1;
       });
     });
 
@@ -221,10 +243,13 @@ function App() {
   };
 
   const handleCheck = () => {
-    logEvent(analytics, "validate_button_clicked", {
-      timestamp: new Date().toISOString(),
-      total_selected: Object.values(selectedElectives).flat().length
-    });
+    // Only log analytics if available
+    if (analytics) {
+      logEvent(analytics, "validate_button_clicked", {
+        timestamp: new Date().toISOString(),
+        total_selected: Object.values(selectedElectives).flat().length
+      });
+    }
 
     let validationErrors = [];
 
@@ -280,6 +305,23 @@ function App() {
 
   const totalSelectedElectives = Object.values(selectedElectives).flat().length;
 
+  // Add null checks for popup message rendering
+  const renderPopupMessage = () => {
+    if (!messagePopup.message) return null;
+    
+    return Array.isArray(messagePopup.message) ? (
+      <ul className="validation-list">
+        {messagePopup.message.map((msg, index) => (
+          <li key={index} className="validation-item">
+            {msg}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p>{messagePopup.message}</p>
+    );
+  };
+
   if (!simulationStarted) {
     return (
       <div className="start-screen">
@@ -293,7 +335,7 @@ function App() {
 
   return (
     <div className="app-container">
-      <header className="app-header">
+      <header className="app-header sticky">
         <h1>Elective Selection Simulation</h1>
         <div className="header-controls">
           <button className="primary-button" onClick={handleCheck}>
@@ -320,15 +362,27 @@ function App() {
                 {electivesData[term].map((elective) => {
                   const isSelected = selectedElectives[term].find((e) => e.name === elective.name);
                   const color = isSelected ? isSelected.color : "#e0e0e0";
+                  const majors = elective.major.split(",").map(m => m.trim());
+                  
                   return (
                     <div
                       key={elective.name}
-                      className={`elective-tile ${isSelected ? "selected" : ""} ${elective.crossListed ? "cross-listed" : ""}`}
+                      className={`elective-tile ${isSelected ? "selected" : ""}`}
                       style={{ backgroundColor: color }}
                       onClick={() => handleSelectElective(parseInt(term), elective)}
                     >
                       <span className="elective-name">{elective.name}</span>
-                      {elective.crossListed && <span className="cross-listed-badge">Cross-listed</span>}
+                      <div className="major-tags">
+                        {majors.map(major => (
+                          <span 
+                            key={major} 
+                            className="major-tag"
+                            style={{ backgroundColor: getColorForCategory(major) }}
+                          >
+                            {major}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   );
                 })}
@@ -428,22 +482,12 @@ function App() {
           className="popup-overlay"
           onClick={handleOutsideClick}
         >
-          <div className={`popup-content ${messagePopup.type}`}>
-            <h3 className={`popup-title ${messagePopup.type}`}>
-              {messagePopup.title}
+          <div className={`popup-content ${messagePopup.type || ''}`}>
+            <h3 className={`popup-title ${messagePopup.type || ''}`}>
+              {messagePopup.title || 'Message'}
             </h3>
             <div className="popup-message-container">
-              {Array.isArray(messagePopup.message) ? (
-                <ul className="validation-list">
-                  {messagePopup.message.map((msg, index) => (
-                    <li key={index} className="validation-item">
-                      {msg}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>{messagePopup.message}</p>
-              )}
+              {renderPopupMessage()}
             </div>
             <button
               className="close-button"

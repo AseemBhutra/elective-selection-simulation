@@ -61,7 +61,8 @@ const electivesData = {
     { name: "HR Analytics", major: "Analytics, Open Electives", color: "#FFCC99", crossListed: true },
     { name: "Personal and Behavioral Finance", major: "Finance", color: "#99FF99" },
     { name: "Alternative Investments (0.5 credit)", major: "Finance", color: "#99FF99" },
-    { name: "Business Ethics in Practice", major: "Open Electives", color: "#CCCCCC" }
+    { name: "Business Ethics in Practice", major: "Open Electives", color: "#CCCCCC" },
+    { name: "Integrating Marketing Communication", major: "Marketing", color: "#FF9999" }
   ]
 };
 

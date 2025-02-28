@@ -4,8 +4,8 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics, logEvent } from "firebase/analytics";
 
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Firebase configuration object - stores API keys and other credentials
+// Uses environment variables with fallback values
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "your-api-key",
   authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "your-auth-domain",
@@ -16,6 +16,11 @@ const firebaseConfig = {
   measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID || "your-measurement-id"
 };
 
+// Course data organized by term (4-7) containing:
+// - name: Course name
+// - major: Department/specialization
+// - color: UI color code for visual representation
+// - crossListed: Boolean flag for courses that count toward multiple majors
 const electivesData = {
   4: [
     { name: "Machine Learning I", major: "Analytics", color: "#FFCC99" },
@@ -67,6 +72,7 @@ const electivesData = {
 };
 
 
+// Defines minimum and maximum number of electives that can be selected per term
 const termLimits = {
   4: { min: 3, max: 5 },
   5: { min: 3, max: 5 },
@@ -75,9 +81,10 @@ const termLimits = {
 };
 
 function App() {
-  // Initialize analytics as null and handle initialization safely
+  // Firebase Analytics instance state
   const [analytics, setAnalytics] = useState(null);
 
+  // Initialize Firebase and Analytics on component mount
   useEffect(() => {
     try {
       const app = initializeApp(firebaseConfig);
@@ -88,11 +95,13 @@ function App() {
     }
   }, []);
 
-  const [simulationStarted, setSimulationStarted] = useState(false);
-  const [selectedElectives, setSelectedElectives] = useState({ 4: [], 5: [], 6: [], 7: [] });
-  const [popup, setPopup] = useState({ visible: false, elective: null, term: null });
-  const [messagePopup, setMessagePopup] = useState({ visible: false, message: "" });
+  // Core application state
+  const [simulationStarted, setSimulationStarted] = useState(false);  // Tracks if user has started the simulation
+  const [selectedElectives, setSelectedElectives] = useState({ 4: [], 5: [], 6: [], 7: [] });  // Stores selected courses by term
+  const [popup, setPopup] = useState({ visible: false, elective: null, term: null });  // Controls cross-listed course selection popup
+  const [messagePopup, setMessagePopup] = useState({ visible: false, message: "" });  // Controls validation/error message popup
   
+  // Log page view event when analytics is initialized
   useEffect(() => {
     if (analytics) {
       logEvent(analytics, "page_view", { page_title: "Elective Simulation", page_location: window.location.href });
@@ -100,16 +109,20 @@ function App() {
   }, [analytics]);
 
 
+  // Core interaction handlers
   const handleStartSimulation = () => {
+    // Initializes the simulation and logs start event
     setSimulationStarted(true);
     logEvent(analytics, "simulation_started", { time: new Date().toISOString() });
   };
 
   const handleResetSimulation = () => {
+    // Clears all selected electives
     setSelectedElectives({ 4: [], 5: [], 6: [], 7: [] });
   };
 
   const handleSelectElective = (term, elective) => {
+    // Handles initial elective selection, showing popup for cross-listed courses
     if (elective.crossListed) {
       setPopup({ visible: true, elective, term });
     } else {
@@ -122,23 +135,87 @@ function App() {
   };
 
   const toggleElectiveSelection = (term, elective) => {
+    // Main course selection logic including:
+    // - Prerequisite validation
+    // - Mutual exclusivity checks
+    // - Term limit enforcement
+    // - Total selection limit checks
     setSelectedElectives((prev) => {
       const updatedSelection = { ...prev };
+      const allSelectedElectives = Object.values(updatedSelection).flat();
 
-      // Check if the elective is already selected in the current term
-      const isSelected = updatedSelection[term].find((item) => item.name === elective.name);
+      // Check if trying to deselect a prerequisite
+      if (allSelectedElectives.some(e => e.name === elective.name)) {
+        // Check if this is a prerequisite for any selected course
+        const isPreReqForML2 = elective.name === "Machine Learning I" && 
+          allSelectedElectives.some(e => e.name === "Machine Learning II");
+        
+        const isPreReqForAdvanced = elective.name === "Machine Learning II" && 
+          allSelectedElectives.some(e => ["Deep Learning & AI", "Natural Language Processing"].includes(e.name));
+        
+        const isPreReqForDigitalMarketing = elective.name === "Digital Marketing" && 
+          allSelectedElectives.some(e => e.name === "Advanced Digital Marketing");
 
-      if (isSelected) {
-        // Deselect the elective
-        updatedSelection[term] = updatedSelection[term].filter((item) => item.name !== elective.name);
+        if (isPreReqForML2 || isPreReqForAdvanced || isPreReqForDigitalMarketing) {
+          showMessagePopup("Cannot remove this course as it is a prerequisite for other selected courses. Please remove the dependent courses first.");
+          return updatedSelection;
+        }
+      }
+
+      // Rest of the existing selection logic
+      if (allSelectedElectives.some(e => e.name === elective.name)) {
+        // Deselect the elective from the specific term
+        updatedSelection[term] = updatedSelection[term].filter(
+          (item) => item.name !== elective.name
+        );
       } else {
+        // Get all selected electives across all terms
+        const allSelectedElectives = Object.values(updatedSelection).flat();
+
         // Check prerequisites for Deep Learning & AI and NLP
         if (elective.name === "Deep Learning & AI" || elective.name === "Natural Language Processing") {
-          const ml1Selected = Object.values(updatedSelection).flat().some(e => e.name === "Machine Learning I");
-          const ml2Selected = Object.values(updatedSelection).flat().some(e => e.name === "Machine Learning II");
+          const ml1Selected = allSelectedElectives.some(e => e.name === "Machine Learning I");
+          const ml2Selected = allSelectedElectives.some(e => e.name === "Machine Learning II");
           
           if (!ml1Selected || !ml2Selected) {
             showMessagePopup("Prerequisites Required: Machine Learning I and Machine Learning II must be selected before taking this course.");
+            return updatedSelection;
+          }
+        }
+
+        // Check prerequisite for Machine Learning II
+        if (elective.name === "Machine Learning II") {
+          const ml1Selected = allSelectedElectives.some(e => e.name === "Machine Learning I");
+          
+          if (!ml1Selected) {
+            showMessagePopup("Prerequisite Required: Machine Learning I must be selected before taking Machine Learning II.");
+            return updatedSelection;
+          }
+        }
+
+        // Check prerequisite for Advanced Digital Marketing
+        if (elective.name === "Advanced Digital Marketing") {
+          const digitalMarketingSelected = allSelectedElectives.some(e => e.name === "Digital Marketing");
+          
+          if (!digitalMarketingSelected) {
+            showMessagePopup("Prerequisite Required: Digital Marketing must be selected before taking Advanced Digital Marketing.");
+            return updatedSelection;
+          }
+        }
+
+        // Check mutual exclusivity between Service Operations Management and Services Marketing
+        if (elective.name === "Service Operations Management") {
+          const servicesMarketingSelected = allSelectedElectives.some(e => e.name === "Services Marketing");
+          if (servicesMarketingSelected) {
+            showMessagePopup("You cannot select Service Operations Management if Services Marketing is already selected. These courses are mutually exclusive.");
+            return updatedSelection;
+          }
+        }
+
+        if (elective.name === "Services Marketing") {
+          const serviceOperationsSelected = allSelectedElectives.some(e => e.name === "Service Operations Management");
+          if (serviceOperationsSelected) {
+            showMessagePopup("You cannot select Services Marketing if Service Operations Management is already selected. These courses are mutually exclusive.");
             return updatedSelection;
           }
         }
@@ -150,7 +227,7 @@ function App() {
         }
 
         // Check total selection limit (14 electives)
-        const totalSelected = Object.values(updatedSelection).flat().length;
+        const totalSelected = allSelectedElectives.length;
         if (totalSelected >= 14) {
           showMessagePopup("You have reached the maximum limit of 14 electives.");
           return updatedSelection;
@@ -165,6 +242,7 @@ function App() {
   };
 
   const handlePopupSelection = (category) => {
+    // Processes cross-listed course category selection
     const { elective, term } = popup;
     const updatedElective = { ...elective, major: category, color: getColorForCategory(category) };
     toggleElectiveSelection(term, updatedElective);
@@ -172,6 +250,7 @@ function App() {
   };
 
   const getColorForCategory = (category) => {
+    // Returns color code for each major category
     switch (category) {
       case "Analytics":
         return "#FFCC99";
@@ -191,6 +270,10 @@ function App() {
   };
 
   const determineMajorMinor = () => {
+    // Analyzes selected courses to determine:
+    // - Major(s)
+    // - Minor(s)
+    // - General Management qualification
     const counts = {};
 
     // Count the number of courses in each area
@@ -245,6 +328,11 @@ function App() {
   };
 
   const handleCheck = () => {
+    // Validates course selection against requirements:
+    // - Total number of electives
+    // - Open elective requirement
+    // - Term limits
+    // - Major/minor requirements
     // Only log analytics if available
     if (analytics) {
       logEvent(analytics, "validate_button_clicked", {
@@ -307,8 +395,9 @@ function App() {
 
   const totalSelectedElectives = Object.values(selectedElectives).flat().length;
 
-  // Add null checks for popup message rendering
+  // UI rendering helpers
   const renderPopupMessage = () => {
+    // Formats popup messages as either list or paragraph
     if (!messagePopup.message) return null;
     
     return Array.isArray(messagePopup.message) ? (
@@ -324,7 +413,9 @@ function App() {
     );
   };
 
+  // Main render logic
   if (!simulationStarted) {
+    // Shows welcome screen before simulation starts
     return (
       <div className="start-screen">
         <h1>Welcome to Elective Selection Simulation</h1>
@@ -336,6 +427,11 @@ function App() {
   }
 
   return (
+    // Main application UI including:
+    // - Header with controls
+    // - Term-wise course selection grid
+    // - Progress dashboard
+    // - Popups for cross-listed courses and messages
     <div className="app-container">
       <header className="app-header sticky">
         <h1>Elective Selection Simulation</h1>

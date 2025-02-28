@@ -1,13 +1,26 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import App from './App';
+import Welcome from './Welcome';
+import ProgramSelection from './ProgramSelection';
+import PGDM from './PGDM';
+import './index.css';
 import reportWebVitals from './reportWebVitals';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <Router>
+      <Routes>
+        <Route path="/home" element={<Welcome />} />
+        <Route path="/courses" element={<ProgramSelection />} />
+        <Route path="/pgpm" element={<App />} />
+        <Route path="/pgdm" element={<PGDM />} />
+        <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route path="*" element={<Navigate to="/home" replace />} />
+      </Routes>
+    </Router>
   </React.StrictMode>
 );
 

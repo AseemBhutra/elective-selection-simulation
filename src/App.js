@@ -96,10 +96,9 @@ function App() {
   }, []);
 
   // Core application state
-  const [simulationStarted, setSimulationStarted] = useState(false);  // Tracks if user has started the simulation
-  const [selectedElectives, setSelectedElectives] = useState({ 4: [], 5: [], 6: [], 7: [] });  // Stores selected courses by term
-  const [popup, setPopup] = useState({ visible: false, elective: null, term: null });  // Controls cross-listed course selection popup
-  const [messagePopup, setMessagePopup] = useState({ visible: false, message: "" });  // Controls validation/error message popup
+  const [selectedElectives, setSelectedElectives] = useState({ 4: [], 5: [], 6: [], 7: [] });
+  const [popup, setPopup] = useState({ visible: false, elective: null, term: null });
+  const [messagePopup, setMessagePopup] = useState({ visible: false, message: "" });
   
   // Log page view event when analytics is initialized
   useEffect(() => {
@@ -110,12 +109,6 @@ function App() {
 
 
   // Core interaction handlers
-  const handleStartSimulation = () => {
-    // Initializes the simulation and logs start event
-    setSimulationStarted(true);
-    logEvent(analytics, "simulation_started", { time: new Date().toISOString() });
-  };
-
   const handleResetSimulation = () => {
     // Clears all selected electives
     setSelectedElectives({ 4: [], 5: [], 6: [], 7: [] });
@@ -414,18 +407,6 @@ function App() {
   };
 
   // Main render logic
-  if (!simulationStarted) {
-    // Shows welcome screen before simulation starts
-    return (
-      <div className="start-screen">
-        <h1>Welcome to Elective Selection Simulation</h1>
-        <button className="start-button" onClick={handleStartSimulation}>
-          Start Simulation
-        </button>
-      </div>
-    );
-  }
-
   return (
     // Main application UI including:
     // - Header with controls
@@ -434,7 +415,7 @@ function App() {
     // - Popups for cross-listed courses and messages
     <div className="app-container">
       <header className="app-header sticky">
-        <h1>Elective Selection Simulation</h1>
+        <h1>PGPM Elective Selection Simulation</h1>
         <div className="header-controls">
           <button className="primary-button" onClick={handleCheck}>
             Validate Selection

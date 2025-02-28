@@ -21,12 +21,13 @@
 }
 
 .welcome-container {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background: linear-gradient(135deg, var(--color-gray-50) 0%, var(--color-gray-100) 100%);
-  padding: 1rem;
-  overflow: hidden; /* Prevent scroll */
+  padding: 0;
+  overflow: hidden; /* Ensures no scrolling */
   font-family: var(--font-secondary);
 }
 

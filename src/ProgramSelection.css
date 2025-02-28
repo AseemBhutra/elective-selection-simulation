@@ -5,22 +5,29 @@
 @import './styles/animations.css';
 
 .program-selection-container {
-  min-height: 100vh;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, var(--color-gray-50) 0%, var(--color-gray-100) 100%);
-  padding: 1rem;
+  padding: 0 !important; /* Remove extra padding */
+  margin: 0;
   overflow: hidden;
-  font-family: var(--font-secondary);
+  box-sizing: border-box;
 }
 
+
+
 .program-selection-content {
-  width: 100%;
   max-width: 600px;
+  width: 100%;
   text-align: center;
   padding: 2rem;
+  box-sizing: border-box; /* Ensures no unexpected layout shift */
+  overflow: hidden;
 }
+
 
 .program-selection-content h1 {
   font-family: var(--font-primary);

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./App.css";
+import { useFirebaseAnalytics } from './hooks/useFirebaseAnalytics';
 
 // Updated major categories
 const majorCategories = [
@@ -72,12 +73,20 @@ const prerequisites = {
   "Deep Learning & Natural Language Processing": ["Machine Learning"]
 };
 
+const dependentCourses = {
+  "Machine Learning": ["Deep Learning & Natural Language Processing"]
+};
+
 function PGDM() {
+  const logAnalyticsEvent = useFirebaseAnalytics();
   const [selectedElectives, setSelectedElectives] = useState({ 4: [], 5: [], 6: [] });
   const [popup, setPopup] = useState({ visible: false, elective: null, term: null });
   const [messagePopup, setMessagePopup] = useState({ visible: false, message: "" });
 
   const handleResetSimulation = () => {
+    logAnalyticsEvent('pgdm_reset_simulation', {
+      total_selected: Object.values(selectedElectives).flat().length
+    });
     setSelectedElectives({ 4: [], 5: [], 6: [] });
   };
 
@@ -116,6 +125,11 @@ function PGDM() {
   };
 
   const handleCheck = () => {
+    logAnalyticsEvent('pgdm_validate_selection', {
+      total_selected: Object.values(selectedElectives).flat().length,
+      outcome: determineMajorMinor()
+    });
+
     let validationErrors = [];
     const totalSelected = Object.values(selectedElectives).flat().length;
     
@@ -169,6 +183,13 @@ function PGDM() {
   };
 
   const handleSelectElective = (term, elective) => {
+    logAnalyticsEvent('pgdm_select_elective', {
+      term,
+      elective_name: elective.name,
+      elective_major: elective.major,
+      is_cross_listed: elective.crossListed || false
+    });
+
     if (elective.crossListed) {
       setPopup({ visible: true, elective, term });
     } else {
@@ -180,17 +201,30 @@ function PGDM() {
     setSelectedElectives((prev) => {
       const updatedSelection = { ...prev };
       const termRequirement = termRequirements[term].required;
+      const allSelectedCourses = Object.values(prev).flat();
 
       if (updatedSelection[term].some(e => e.name === elective.name)) {
+        const dependentsList = dependentCourses[elective.name] || [];
+        const hasSelectedDependents = allSelectedCourses.some(
+          course => dependentsList.includes(course.name)
+        );
+
+        if (hasSelectedDependents) {
+          showMessagePopup(
+            `Cannot remove ${elective.name} as it is a prerequisite for other selected courses. Please remove the dependent courses first: ${dependentsList.join(", ")}`
+          );
+          return updatedSelection;
+        }
+
         updatedSelection[term] = updatedSelection[term].filter(
           (item) => item.name !== elective.name
         );
       } else {
         if (prerequisites[elective.name]) {
           const requiredCourses = prerequisites[elective.name];
-          const allSelectedCourses = Object.values(prev).flat().map(e => e.name);
+          const allSelectedCourseNames = allSelectedCourses.map(e => e.name);
           const missingPrerequisites = requiredCourses.filter(
-            course => !allSelectedCourses.includes(course)
+            course => !allSelectedCourseNames.includes(course)
           );
 
           if (missingPrerequisites.length > 0) {
@@ -202,7 +236,9 @@ function PGDM() {
         }
 
         if (updatedSelection[term].length >= termRequirement) {
-          showMessagePopup(`Term ${term} requires exactly ${termRequirement} electives. Please remove one before adding another.`);
+          showMessagePopup(
+            `Term ${term} requires exactly ${termRequirement} electives. Please remove one before adding another.`
+          );
           return updatedSelection;
         }
 
@@ -215,6 +251,12 @@ function PGDM() {
 
   const handlePopupSelection = (category) => {
     const { elective, term } = popup;
+    logAnalyticsEvent('pgdm_cross_listed_selection', {
+      elective_name: elective.name,
+      selected_category: category,
+      term
+    });
+
     const updatedElective = { ...elective, major: category, color: getColorForCategory(category) };
     toggleElectiveSelection(term, updatedElective);
     setPopup({ visible: false, elective: null, term: null });
@@ -261,7 +303,7 @@ function PGDM() {
         <h1>PGDM Elective Selection Simulation</h1>
         <div className="header-controls">
           <button className="primary-button" onClick={handleCheck}>
-            Validate Selection
+            Validate
           </button>
           <button className="secondary-button" onClick={handleResetSimulation}>
             Reset

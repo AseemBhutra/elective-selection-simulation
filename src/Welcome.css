@@ -1,44 +1,99 @@
+/* Import modern fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+
+/* Import animations */
+@import './styles/animations.css';
+
+:root {
+  /* Typography */
+  --font-primary: 'Outfit', sans-serif;
+  --font-secondary: 'Inter', sans-serif;
+  
+  /* Updated color palette */
+  --color-primary: #2563eb;
+  --color-primary-dark: #1d4ed8;
+  --color-gray-50: #f8fafc;
+  --color-gray-100: #f1f5f9;
+  --color-gray-200: #e2e8f0;
+  --color-gray-700: #334155;
+  --color-gray-800: #1e293b;
+  --color-gray-900: #0f172a;
+}
+
 .welcome-container {
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--color-gray-50) 0%, var(--color-gray-100) 100%);
   padding: 1rem;
-  background-color: #f8f9fa;
+  overflow: hidden; /* Prevent scroll */
+  font-family: var(--font-secondary);
 }
 
 .welcome-content {
   text-align: center;
   max-width: 600px;
-  margin: 0 auto;
+  padding: 2rem;
 }
 
 .welcome-content h1 {
-  font-size: clamp(1.8rem, 5vw, 2.5rem);
-  color: #2c3e50;
-  margin-bottom: 1rem;
-  font-weight: 600;
+  font-family: var(--font-primary);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  color: var(--color-gray-900);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  animation: fadeInDown 0.5s ease-out;
 }
 
 .welcome-subtitle {
-  color: #6c757d;
-  font-size: clamp(1rem, 3vw, 1.2rem);
+  font-size: clamp(1rem, 1.5vw, 1.125rem);
+  color: var(--color-gray-700);
   margin-bottom: 2rem;
+  line-height: 1.6;
+  font-weight: 400;
+  animation: fadeIn 0.5s ease-out 0.2s both;
 }
 
-.primary-button {
-  background-color: #3498db;
+.welcome-content .primary-button {
+  font-family: var(--font-primary);
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.875rem 1.75rem;
+  background: var(--color-primary);
   color: white;
   border: none;
-  padding: 1rem 2rem;
-  font-size: 1.1rem;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
+  animation: fadeInUp 0.5s ease-out 0.3s both;
+  position: relative;
+  overflow: hidden;
 }
 
-.primary-button:hover {
-  background-color: #2980b9;
+.welcome-content .primary-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-} 
+  background: var(--color-primary-dark);
+  box-shadow: 0 10px 20px -10px rgba(37, 99, 235, 0.5);
+}
+
+.welcome-content .primary-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120%;
+  height: 120%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%) scale(0);
+  border-radius: 50%;
+  transition: transform 0.5s ease-out;
+}
+
+.welcome-content .primary-button:active::after {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0;
+}
+
+/* Create a new file: ProgramSelection.css */ 

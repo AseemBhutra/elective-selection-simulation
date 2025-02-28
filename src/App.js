@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./App.css"; // Import the CSS file for styling
 import { initializeApp } from "firebase/app";
 import { getAnalytics, logEvent } from "firebase/analytics";
@@ -80,20 +80,31 @@ const termLimits = {
   7: { min: 2, max: 3 }
 };
 
-function App() {
-  // Firebase Analytics instance state
+// Create a custom hook for Firebase Analytics
+const useFirebaseAnalytics = () => {
   const [analytics, setAnalytics] = useState(null);
 
-  // Initialize Firebase and Analytics on component mount
   useEffect(() => {
     try {
       const app = initializeApp(firebaseConfig);
       const analyticsInstance = getAnalytics(app);
       setAnalytics(analyticsInstance);
     } catch (error) {
-      console.error("Firebase initialization error:", error);
+      console.error("Firebase Analytics initialization error:", error);
     }
   }, []);
+
+  const logAnalyticsEvent = useCallback((eventName, eventParams = {}) => {
+    if (analytics) {
+      logEvent(analytics, eventName, eventParams);
+    }
+  }, [analytics]);
+
+  return logAnalyticsEvent;
+};
+
+function App() {
+  const logAnalyticsEvent = useFirebaseAnalytics();
 
   // Core application state
   const [selectedElectives, setSelectedElectives] = useState({ 4: [], 5: [], 6: [], 7: [] });
@@ -102,20 +113,30 @@ function App() {
   
   // Log page view event when analytics is initialized
   useEffect(() => {
-    if (analytics) {
-      logEvent(analytics, "page_view", { page_title: "Elective Simulation", page_location: window.location.href });
-    }
-  }, [analytics]);
+    logAnalyticsEvent("page_view", {
+      page_title: "Elective Simulation",
+      page_location: window.location.href
+    });
+  }, [logAnalyticsEvent]);
+  
 
 
   // Core interaction handlers
   const handleResetSimulation = () => {
-    // Clears all selected electives
+    logAnalyticsEvent('reset_simulation', {
+      total_selected: Object.values(selectedElectives).flat().length
+    });
     setSelectedElectives({ 4: [], 5: [], 6: [], 7: [] });
   };
 
   const handleSelectElective = (term, elective) => {
-    // Handles initial elective selection, showing popup for cross-listed courses
+    logAnalyticsEvent('select_elective', {
+      term,
+      elective_name: elective.name,
+      elective_major: elective.major,
+      is_cross_listed: elective.crossListed || false
+    });
+
     if (elective.crossListed) {
       setPopup({ visible: true, elective, term });
     } else {
@@ -235,9 +256,18 @@ function App() {
   };
 
   const handlePopupSelection = (category) => {
-    // Processes cross-listed course category selection
     const { elective, term } = popup;
-    const updatedElective = { ...elective, major: category, color: getColorForCategory(category) };
+    logAnalyticsEvent('cross_listed_selection', {
+      elective_name: elective.name,
+      selected_category: category,
+      term
+    });
+
+    const updatedElective = { 
+      ...elective, 
+      major: category,
+      color: getColorForCategory(category)
+    };
     toggleElectiveSelection(term, updatedElective);
     setPopup({ visible: false, elective: null, term: null });
   };
@@ -321,18 +351,10 @@ function App() {
   };
 
   const handleCheck = () => {
-    // Validates course selection against requirements:
-    // - Total number of electives
-    // - Open elective requirement
-    // - Term limits
-    // - Major/minor requirements
-    // Only log analytics if available
-    if (analytics) {
-      logEvent(analytics, "validate_button_clicked", {
-        timestamp: new Date().toISOString(),
-        total_selected: Object.values(selectedElectives).flat().length
-      });
-    }
+    logAnalyticsEvent('validate_selection', {
+      total_selected: Object.values(selectedElectives).flat().length,
+      outcome: determineMajorMinor()
+    });
 
     let validationErrors = [];
 
@@ -418,7 +440,7 @@ function App() {
         <h1>PGPM Elective Selection Simulation</h1>
         <div className="header-controls">
           <button className="primary-button" onClick={handleCheck}>
-            Validate Selection
+            Validate
           </button>
           <button className="secondary-button" onClick={handleResetSimulation}>
             Reset

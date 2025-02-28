@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/elective-selection-simulation/precache-manifest.4ca4b735f0af72c423285aa189030942.js"
+  "/elective-selection-simulation/precache-manifest.68076defc4fc7270b594bd9d8cb5e064.js"
 );
 
 self.addEventListener('message', (event) => {

@@ -6,8 +6,9 @@
 
 .program-selection-container {
   min-height: 100vh;
-  display: grid;
-  place-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background: linear-gradient(135deg, var(--color-gray-50) 0%, var(--color-gray-100) 100%);
   padding: 1rem;
   overflow: hidden;
@@ -15,10 +16,10 @@
 }
 
 .program-selection-content {
+  width: 100%;
+  max-width: 600px;
   text-align: center;
-  max-width: 700px;
   padding: 2rem;
-  animation: fadeInUp 0.6s ease-out;
 }
 
 .program-selection-content h1 {
@@ -28,18 +29,20 @@
   margin-bottom: 2.5rem;
   color: var(--color-gray-900);
   letter-spacing: -0.02em;
-  animation: fadeInDown 0.5s ease-out;
 }
 
 .program-buttons {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(160px, 200px));
-  gap: 1.5rem;
-  margin-top: 1rem;
+  display: flex;
   justify-content: center;
+  gap: 1.5rem;
+  margin: 0 auto;
+  max-width: 450px;
+  padding: 0 1rem;
 }
 
 .program-button {
+  flex: 1;
+  max-width: 180px;
   padding: 1.5rem;
   font-family: var(--font-primary);
   font-size: 1.25rem;
@@ -51,40 +54,82 @@
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow: hidden;
-  animation: fadeInUp 0.5s ease-out;
-}
-
-.program-button:nth-child(1) {
-  animation-delay: 0.2s;
-}
-
-.program-button:nth-child(2) {
-  animation-delay: 0.3s;
 }
 
 .program-button:hover {
   transform: translateY(-4px);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
               0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  color: var(--color-primary);
-  background: linear-gradient(135deg, white, #f8fafc);
 }
 
-.program-button::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, 
-              rgba(37, 99, 235, 0.1),
-              rgba(37, 99, 235, 0.05));
-  opacity: 0;
-  transition: opacity 0.3s ease;
+/* Media Queries for different screen sizes */
+@media (max-width: 640px) {
+  .program-buttons {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .program-button {
+    width: 100%;
+    max-width: 200px;
+    padding: 1.25rem;
+  }
+
+  .program-selection-content {
+    padding: 1.5rem;
+  }
 }
 
-.program-button:hover::after {
-  opacity: 1;
+@media (min-width: 641px) and (max-width: 1024px) {
+  .program-buttons {
+    gap: 2rem;
+  }
+
+  .program-button {
+    min-width: 160px;
+  }
+}
+
+/* For very large screens */
+@media (min-width: 1025px) {
+  .program-selection-container {
+    padding: 2rem;
+  }
+
+  .program-buttons {
+    gap: 2.5rem;
+  }
+
+  .program-button {
+    min-width: 180px;
+  }
+}
+
+/* For different screen heights */
+@media (max-height: 600px) {
+  .program-selection-content {
+    padding: 1rem;
+  }
+
+  .program-selection-content h1 {
+    margin-bottom: 1.5rem;
+  }
+
+  .program-button {
+    padding: 1rem;
+  }
+}
+
+/* For ultra-wide screens */
+@media (min-width: 1440px) {
+  .program-selection-content {
+    max-width: 800px;
+  }
+
+  .program-buttons {
+    max-width: 600px;
+  }
 }
 
 /* Animations */

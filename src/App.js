@@ -399,11 +399,27 @@ function App() {
         message: validationErrors
       });
     } else {
+      // Format selected electives by term
+      const selectedSubjects = Object.entries(selectedElectives)
+        .map(([term, electives]) => {
+          if (electives.length === 0) return null;
+          const subjectList = electives
+            .map(e => `${e.name} (${e.major})`)
+            .join('\n');
+          return `Term ${term}:\n${subjectList}`;
+        })
+        .filter(Boolean)
+        .join('\n\n');
+
       setMessagePopup({
         visible: true,
         type: 'success',
         title: 'Valid Selection',
-        message: [`${outcome}`]
+        message: [
+          `${determineMajorMinor()}`,
+          //'\nSelected Subjects:',
+         // selectedSubjects
+        ]
       });
     }
   };

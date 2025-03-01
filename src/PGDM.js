@@ -334,7 +334,7 @@ function PGDM() {
                       style={{ backgroundColor: color }}
                       onClick={() => handleSelectElective(parseInt(term), elective)}
                     >
-                      <span className="elective-name">{elective.name}</span>
+                      <span className="elective-name">{`${elective.name} (${elective.credits})`}</span>
                       <div className="major-tags">
                         {majors.map(major => (
                           <span 

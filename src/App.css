@@ -115,12 +115,13 @@ body {
   padding: 1.25rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   animation: fadeIn 0.5s ease-out;
-  transition: transform 0.2s ease;
-  @extend .hover-lift;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transform: translateY(0);
 }
 
 .term-section:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px);  
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .term-header {
@@ -163,7 +164,8 @@ body {
   line-height: 1.25;
   border: 1px solid rgba(0, 0, 0, 0.1);
   animation: fadeIn 0.3s ease-out;
-  @extend .hover-lift;
+  transform: translateY(0);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .elective-tile:hover {
@@ -373,6 +375,7 @@ body {
 
 .popup-message-container {
   margin-bottom: 20px;
+  white-space: pre-line;
 }
 
 .validation-list {
@@ -387,6 +390,7 @@ body {
   padding-left: 24px;
   position: relative;
   line-height: 1.4;
+  white-space: pre-line;
 }
 
 .validation-item::before {
@@ -538,7 +542,8 @@ body {
   border-radius: 8px;
   transition: all 0.2s ease;
   letter-spacing: -0.01em;
-  @extend .transition-all;
+  transform: translateY(0);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .primary-button {
@@ -830,4 +835,64 @@ h1, h2, h3, h4, h5, h6 {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+.success-popup-content {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.success-popup-content .outcome-section {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.success-popup-content h4 {
+  color: var(--color-success);
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.selections-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.term-selection h5 {
+  margin: 0 0 0.75rem 0;
+  color: var(--color-gray-700);
+  font-size: 1rem;
+}
+
+.subject-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.subject-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-gray-100);
+  border-radius: 6px;
+  border-left: 4px solid;
+  transition: transform 0.2s ease;
+}
+
+.subject-item:hover {
+  transform: translateX(4px);
+}
+
+.subject-name {
+  font-weight: 500;
+  color: var(--color-gray-900);
+}
+
+.subject-major {
+  font-size: 0.875rem;
+  color: var(--color-gray-500);
 }

@@ -22,52 +22,54 @@ const termRequirements = {
 // Updated electives data
 const electivesData = {
   4: [
-    { name: "Digital Marketing", major: "Marketing", color: "#FF9999", credits: 3 },
-    { name: "Product & Brand Management", major: "Marketing", color: "#FF9999", credits: 3 },
-    { name: "Sales & Distribution Management", major: "Marketing", color: "#FF9999", credits: 3 },
-    { name: "Marketing & Retail Analytics", major: "Marketing, Analytics", color: "#FF9999", crossListed: true, credits: 3 },
+    { name: "Business Intelligence", major: "Analytics", color: "#FFCC99", credits: 3 },
+    { name: "Machine Learning", major: "Analytics", color: "#FFCC99", credits: 3 },
+    { name: "Fintech", major: "Analytics, Finance", color: "#99FF99", crossListed: true, credits: 3 },
+    { name: "Strategic Negotiation", major: "Analytics, HR", color: "#FF99FF", crossListed: true, credits: 3 },
+    { name: "Marketing & Retail Analytics", major: "Analytics, Marketing", color: "#FF9999", crossListed: true, credits: 3 },
     { name: "Financial Statement Analysis & Valuation", major: "Finance", color: "#99FF99", credits: 3 },
     { name: "Wealth Management", major: "Finance", color: "#99FF99", credits: 3 },
     { name: "Security Analysis & Portfolio Management", major: "Finance", color: "#99FF99", credits: 3 },
-    { name: "Fintech", major: "Finance, Analytics", color: "#99FF99", crossListed: true, credits: 3 },
-    { name: "Enterprise Resources Planning", major: "Operations", color: "#FFFF99", credits: 3 },
-    { name: "Project Management", major: "Operations", color: "#FFFF99", credits: 3 },
-    { name: "Strategic Sourcing and Procurement", major: "Operations", color: "#FFFF99", credits: 3 },
     { name: "Talent Acquisition through Employee Value Proposition", major: "HR", color: "#FF99FF", credits: 3 },
     { name: "Total Rewards for Retaining Talents", major: "HR", color: "#FF99FF", credits: 3 },
-    { name: "Business Intelligence", major: "Analytics", color: "#FFCC99", credits: 3 },
-    { name: "Machine Learning", major: "Analytics", color: "#FFCC99", credits: 3 }
+    { name: "Digital Marketing", major: "Marketing", color: "#FF9999", credits: 3 },
+    { name: "Sales & Distribution Management", major: "Marketing", color: "#FF9999", credits: 3 },
+    { name: "Consumer Behaviour", major: "Marketing", color: "#FF9999", credits: 3 },
+    { name: "Enterprise Resources Planning", major: "Operations", color: "#FFFF99", credits: 3 },
+    { name: "Project Management", major: "Operations", color: "#FFFF99", credits: 3 },
+    { name: "Strategic Sourcing and Procurement", major: "Operations", color: "#FFFF99", credits: 3 }
   ],
   5: [
-    { name: "B2B Marketing", major: "Marketing", color: "#FF9999", credits: 3 },
-    { name: "Consumer Behaviour", major: "Marketing", color: "#FF9999", credits: 3 },
-    { name: "Web and Social Media Analytics", major: "Marketing, Analytics", color: "#FF9999", crossListed: true, credits: 3 },
+    { name: "Deep Learning & Natural Language Processing", major: "Analytics", color: "#FFCC99", credits: 3 },
+    { name: "Web and Social Media Analytics", major: "Analytics, Marketing", color: "#FF9999", crossListed: true, credits: 3 },
     { name: "Financial Management for Developing Marketing Strategy", major: "Finance", color: "#99FF99", credits: 3 },
     { name: "Mergers & Acquisitions", major: "Finance", color: "#99FF99", credits: 3 },
     { name: "Derivatives & Financial Risk Management", major: "Finance", color: "#99FF99", credits: 3 },
-    { name: "Banking Management", major: "Finance", color: "#99FF99", credits: 3 },
-    { name: "Supply Chain Management", major: "Operations", color: "#FFFF99", credits: 3 },
-    { name: "Deep Learning & Natural Language Processing", major: "Analytics", color: "#FFCC99", credits: 3 },
-    { name: "Strategic Negotiation", major: "HR", color: "#FF99FF", credits: 3 },
-    { name: "Creating High Performance and Agile Organization", major: "HR", color: "#FF99FF", credits: 3 }
+    { name: "Creating High Performance and Agile Organization", major: "HR", color: "#FF99FF", credits: 3 },
+    { name: "Emotionaly Intelligent Leadership", major: "HR, Operations", color: "#FF99FF", crossListed: true, credits: 3 },
+    { name: "Product & Brand Management", major: "Marketing", color: "#FF9999", credits: 3 },
+    { name: "B2B Marketing", major: "Marketing", color: "#FF9999", credits: 3 },
+    { name: "Business Excellence for Competitive Advantage", major: "Operations", color: "#FFFF99", credits: 3 },
+    { name: "Supply Chain Management", major: "Operations", color: "#FFFF99", credits: 3 }
   ],
   6: [
+    { name: "Big Data & Cloud Analytics for Managers", major: "Analytics", color: "#FFCC99", credits: 3 },
+    { name: "Financial Risk Analytics", major: "Analytics", color: "#FFCC99", credits: 3 },
+    { name: "HR Analytics", major: "Analytics, HR", color: "#FF99FF", crossListed: true, credits: 3 },
+    { name: "Demand Planning & Forecasting", major: "Analytics, Operations", color: "#FFFF99", crossListed: true, credits: 3 },
+    { name: "Banking Management", major: "Finance", color: "#99FF99", credits: 3 },
+    { name: "Behavioural Economics and Finance", major: "Finance", color: "#99FF99", credits: 3 },
+    { name: "Project Finance", major: "Finance", color: "#99FF99", credits: 3 },
+    { name: "Managing Business in an International Context", major: "HR, Operations", color: "#FF99FF", crossListed: true, credits: 3 },
     { name: "CRM", major: "Marketing", color: "#FF9999", credits: 3 },
     { name: "Services Marketing", major: "Marketing", color: "#FF9999", credits: 3 },
     { name: "Integrated Marketing Communication", major: "Marketing", color: "#FF9999", credits: 3 },
-    { name: "Behavioural Economics and Finance", major: "Finance", color: "#99FF99", credits: 3 },
-    { name: "Project Finance", major: "Finance", color: "#99FF99", credits: 3 },
+    { name: "Game Theory and Public Policy", major: "Open Electives", color: "#CCCCCC", credits: 3 },
     { name: "Service Operations", major: "Operations", color: "#FFFF99", credits: 3 },
-    { name: "Internet Business", major: "Operations", color: "#FFFF99", credits: 3 },
-    { name: "Demand Planning & Forecasting", major: "Operations, Analytics", color: "#FFFF99", crossListed: true, credits: 3 },
-    { name: "Big Data & Cloud Analytics for Managers", major: "Analytics", color: "#FFCC99", credits: 3 },
-    { name: "Financial Risk Analytics", major: "Analytics", color: "#FFCC99", credits: 3 },
-    { name: "HR Analytics", major: "HR, Analytics", color: "#FF99FF", crossListed: true, credits: 3 },
-    { name: "Leadership", major: "HR", color: "#FF99FF", credits: 3 },
-    { name: "Managing Business in an International Context", major: "HR", color: "#FF99FF", credits: 3 },
-    { name: "Game Theory and Public Policy", major: "Open Electives", color: "#CCCCCC", credits: 3 }
+    { name: "Internet Business", major: "Operations", color: "#FFFF99", credits: 3 }
   ]
 };
+
 
 const prerequisites = {
   "Deep Learning & Natural Language Processing": ["Machine Learning"]

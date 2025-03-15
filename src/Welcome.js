@@ -35,19 +35,24 @@ function Welcome() {
       
       {/* Disclaimer Popup */}
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h2>⚠️ Disclaimer</h2>
-            <p>
-              This is not the final selection process. To make your selection count, students must fill out the Google Form provided by the PO.
-            </p>
-            <div className="modal-buttons">
-              <button className="proceed-btn" onClick={handleProceed}>I Understand</button>
-              <button className="cancel-btn" onClick={() => setShowModal(false)}>Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
+  <div className="modal-overlay">
+    <div className="modal-content">
+      <h2>⚠️ Disclaimer</h2>
+      <p>
+        This tool helps you explore elective choices but does <strong>not</strong> finalize your selection.
+      </p>
+      <p>
+        To confirm your electives, submit the official <strong>Google Form</strong> provided by the <strong>Program Office (PO)</strong>.
+      </p>
+      <div className="modal-buttons">
+        <button className="proceed-btn" onClick={handleProceed}>I Understand</button>
+        <button className="cancel-btn" onClick={() => setShowModal(false)}>Cancel</button>
+      </div>
+    </div>
+  </div>
+)}
+
+
     </div>
   );
 }

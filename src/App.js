@@ -39,9 +39,9 @@ const electivesData = {
     { name: "Marketing & Retail Analytics", major: "Analytics, Marketing", color: "#FF9999", crossListed: true },
     { name: "Fintech", major: "Digital Strategy, Finance", color: "#99FF99", crossListed: true },
     { name: "Advanced Digital Marketing", major: "Digital Strategy, Marketing", color: "#FF9999", crossListed: true },
-    { name: "Design Thinking", major: "Digital Strategy, Open Electives", color: "#9999FF", crossListed: true },
+    { name: "Design Thinking", major: "Digital Strategy, Open Elective", color: "#9999FF", crossListed: true },
     { name: "B2B Marketing", major: "Marketing", color: "#FF9999" },
-    { name: "Emotional Intelligence for Leadership", major: "Open Electives", color: "#CCCCCC" },
+    { name: "Emotional Intelligence for Leadership", major: "Open Elective", color: "#A9A9A9" },
     { name: "Strategic Sourcing and Procurement", major: "Operations", color: "#FFFF99" },
     { name: "Supply Chain Modeling and Analysis", major: "Operations", color: "#FFFF99" }
   ],
@@ -50,23 +50,23 @@ const electivesData = {
     { name: "Big Data & Cloud Analytics", major: "Analytics, Digital Strategy", color: "#FFCC99", crossListed: true },
     { name: "Financial Risk Analytics", major: "Analytics, Finance", color: "#99FF99", crossListed: true },
     { name: "Spatial Computing in Marketing", major: "Digital Strategy, Marketing", color: "#FF9999", crossListed: true },
-    { name: "Technology Product Management", major: "Digital Strategy, Open Electives", color: "#9999FF", crossListed: true },
+    { name: "Technology Product Management", major: "Digital Strategy, Open Elective", color: "#9999FF", crossListed: true },
     { name: "Financial Inclusion and Microfinance", major: "Finance", color: "#99FF99" },
     { name: "Customer Relationship Management", major: "Marketing", color: "#FF9999" },
-    { name: "Negotiation and Bargaining", major: "Open Electives", color: "#CCCCCC" },
+    { name: "Negotiation and Bargaining", major: "Open Elective", color: "#A9A9A9" },
     { name: "Demand Planning & Forecasting", major: "Operations", color: "#FFFF99" },
     { name: "Service Operations Management", major: "Operations", color: "#FFFF99" }
   ],
   7: [
     { name: "Natural Language Processing", major: "Analytics", color: "#FFCC99" },
-    { name: "HR Analytics", major: "Analytics, Open Electives", color: "#FFCC99", crossListed: true },
+    { name: "HR Analytics", major: "Analytics, Open Elective", color: "#FFCC99", crossListed: true },
     { name: "Alternative Investments (0.5 credit)", major: "Finance", color: "#99FF99" },
     { name: "Mergers & Acquisitions", major: "Finance", color: "#99FF99" },
     { name: "Personal and Behavioral Finance", major: "Finance", color: "#99FF99" },
     { name: "Integrating Marketing Communication", major: "Marketing", color: "#FF9999" },
     { name: "Services Marketing", major: "Marketing", color: "#FF9999" },
-    { name: "Business Ethics in Practice", major: "Open Electives", color: "#CCCCCC" },
-    { name: "Game Theory", major: "Open Electives", color: "#CCCCCC" },
+    { name: "Business Ethics in Practice", major: "Open Elective", color: "#A9A9A9" },
+    { name: "Game Theory", major: "Open Elective", color: "#A9A9A9" },
     { name: "Business Excellence for Competitive Advantage", major: "Operations", color: "#FFFF99" }
   ]
 };
@@ -283,8 +283,8 @@ function App() {
         return "#99FF99";
       case "Marketing":
         return "#FF9999";
-      case "Open Electives":
-        return "#CCCCCC";
+      case "Open Elective":
+        return "#A9A9A9";
       case "Operations":
         return "#FFFF99";
       default:
@@ -303,7 +303,10 @@ function App() {
     Object.values(selectedElectives).flat().forEach((elective) => {
       const majors = elective.major.split(",").map(m => m.trim());
       majors.forEach((major) => {
-        counts[major] = (counts[major] || 0) + 1;
+        // Ignore Open Electives when calculating majors/minors
+        if (major !== "Open Elective") {
+            counts[major] = (counts[major] || 0) + 1;
+        }
       });
     });
 
@@ -313,7 +316,7 @@ function App() {
     const GENERAL_MANAGEMENT_THRESHOLD = 2; // At least 2 courses in each area for general management
 
     // List of functional areas
-    const functionalAreas = ["Marketing", "Finance", "Operations", "Analytics", "Digital Strategy", "Open Electives"];
+    const functionalAreas = ["Marketing", "Finance", "Operations", "Analytics", "Digital Strategy", "Open Elective"];
 
     // Check for General Management
     const isGeneralManagement = functionalAreas.every((area) => (counts[area] || 0) >= GENERAL_MANAGEMENT_THRESHOLD);
@@ -367,7 +370,7 @@ function App() {
     // Check for at least one open elective
     const hasOpenElective = Object.values(selectedElectives)
       .flat()
-      .some(elective => elective.major.includes("Open Electives"));
+      .some(elective => elective.major.includes("Open Elective"));
     
     if (!hasOpenElective) {
       validationErrors.push("Must select at least one Open Elective course");
@@ -400,16 +403,6 @@ function App() {
       });
     } else {
       // Format selected electives by term
-      const selectedSubjects = Object.entries(selectedElectives)
-        .map(([term, electives]) => {
-          if (electives.length === 0) return null;
-          const subjectList = electives
-            .map(e => `${e.name} (${e.major})`)
-            .join('\n');
-          return `Term ${term}:\n${subjectList}`;
-        })
-        .filter(Boolean)
-        .join('\n\n');
 
       setMessagePopup({
         visible: true,
@@ -549,7 +542,7 @@ function App() {
                 { name: "Digital Strategy", color: "#9999FF" },
                 { name: "Finance", color: "#99FF99" },
                 { name: "Marketing", color: "#FF9999" },
-                { name: "Open Electives", color: "#CCCCCC" },
+                { name: "Open Elective", color: "#A9A9A9" },
                 { name: "Operations", color: "#FFFF99" }
               ].map(category => (
                 <div key={category.name} className="legend-item">

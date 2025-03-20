@@ -64,7 +64,7 @@ const electivesData = {
     { name: "Integrated Marketing Communication", major: "Marketing", color: "#FF9999", credits: 3 },
     { name: "Services Marketing", major: "Marketing", color: "#FF9999", credits: 3 },
     { name: "Game Theory and Public Policy", major: "Open Elective", color: "#A9A9A9", credits: 3 },
-    { name: "Demand Planning & Forecasting", major: "Operations", color: "#FFFF99", credits: 3 },
+    { name: "Demand Planning & Forecasting", major: "Operations, Analytics", color: "#FFFF99", crossListed: true, credits: 3 },
     { name: "Internet Business", major: "Operations", color: "#FFFF99", credits: 3 },
     { name: "Service Operations", major: "Operations", color: "#FFFF99", credits: 3 }
   ]

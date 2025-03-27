@@ -81,11 +81,14 @@ const dependentCourses = {
   "Machine Learning": ["Deep Learning & Natural Language Processing"]
 };
 
+
+
 function PGDM() {
   const logAnalyticsEvent = useFirebaseAnalytics();
   const [selectedElectives, setSelectedElectives] = useState({ 4: [], 5: [], 6: [] });
   const [popup, setPopup] = useState({ visible: false, elective: null, term: null });
   const [messagePopup, setMessagePopup] = useState({ visible: false, message: "" });
+  const [showSubjects, setShowSubjects] = useState(false);
 
   const handleResetSimulation = () => {
     logAnalyticsEvent('pgdm_reset_simulation', {
@@ -127,6 +130,32 @@ function PGDM() {
     }
     return "No major or minor yet. Keep selecting courses.";
   };
+
+  const handleDownloadSelection = () => {
+    const lines = [];
+  
+    lines.push("PGDM Elective Selection Report");
+    lines.push(determineMajorMinor());
+    lines.push("");
+  
+    Object.entries(selectedElectives).forEach(([term, electives]) => {
+      lines.push(`Term ${term}:`);
+      electives.forEach(e => {
+        lines.push(`${e.name} (${e.major})`);
+      });
+      lines.push(""); // Empty line between terms
+    });
+  
+    const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "PGDM_Valid_Electives.txt";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  
 
   const handleCheck = () => {
     logAnalyticsEvent('pgdm_validate_selection', {
@@ -183,6 +212,7 @@ function PGDM() {
         title: 'Valid Selection',
         message: [`${determineMajorMinor()}`]
       });
+      setShowSubjects(false); // reset state on each validate
     }
   };
 
@@ -289,15 +319,79 @@ function PGDM() {
 
   const renderPopupMessage = () => {
     if (!messagePopup.message) return null;
+  
+    const isSuccess = messagePopup.type === 'success';
+  
+    return (
+      <>
+        <div className="popup-message-container">
+          {Array.isArray(messagePopup.message) ? (
+            <ul className="validation-list">
+              {messagePopup.message.map((msg, index) => (
+                <li key={index} className="validation-item">{msg}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>{messagePopup.message}</p>
+          )}
+  
+          {isSuccess && showSubjects && (
+            <div className="selected-subjects">
+              <strong>Selected Subjects:</strong>
+              {Object.entries(selectedElectives).map(([term, electives]) => (
+                <div key={term}>
+                  <p>Term {term}:</p>
+                  <ul>
+                    {electives.map((e) => (
+                      <li key={e.name}>
+                        {e.name} ({e.major})
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+  
+        
+        {isSuccess ? (
+  <div className="popup-button-row">
+    <button
+      className="secondary-button"
+      onClick={() => setShowSubjects(!showSubjects)}
+    >
+      {showSubjects ? "Hide Subjects" : "Show Subjects"}
+    </button>
     
-    return Array.isArray(messagePopup.message) ? (
-      <ul className="validation-list">
-        {messagePopup.message.map((msg, index) => (
-          <li key={index} className="validation-item">{msg}</li>
-        ))}
-      </ul>
-    ) : (
-      <p>{messagePopup.message}</p>
+    <button
+      className="secondary-button"
+      onClick={handleDownloadSelection}
+    >
+      Download
+    </button>
+
+    {/* <button
+      className="close-button"
+      onClick={() => setMessagePopup({ visible: false, message: "" })}
+    >
+      Close
+    </button> */}
+  </div>
+) 
+: (
+  <div className="popup-button-row">
+    <button
+      className="close-button"
+      onClick={() => setMessagePopup({ visible: false, message: "" })}
+    >
+      Close
+    </button>
+  </div>
+)
+}
+
+      </>
     );
   };
 
@@ -440,18 +534,19 @@ function PGDM() {
           onClick={handleOutsideClick}
         >
           <div className={`popup-content ${messagePopup.type || ''}`}>
-            <h3 className={`popup-title ${messagePopup.type || ''}`}>
+            <h2 className={`popup-title ${messagePopup.type || ''}`}>
               {messagePopup.title || 'Message'}
-            </h3>
+            </h2>
+            
             <div className="popup-message-container">
               {renderPopupMessage()}
             </div>
-            <button
+            {/* <button
               className="close-button"
               onClick={() => setMessagePopup({ visible: false, message: "" })}
             >
               Close
-            </button>
+            </button> */}
           </div>
         </div>
       )}

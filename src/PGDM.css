@@ -38,3 +38,70 @@
 .back-button:hover {
   background-color: #5a6268;
 }
+
+/* --- Subject List in Popup --- */
+
+.selected-subjects {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  font-size: 0.95rem;
+  color: #374151;
+  animation: slideDown 0.3s ease-out;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+  margin-bottom: 1rem;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.selected-subjects strong {
+  display: block;
+  color: #1f2937;
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+}
+
+.selected-subjects ul {
+  padding-left: 1.25rem;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.selected-subjects li {
+  margin: 0.25rem 0;
+  list-style: disc;
+  line-height: 1.4;
+}
+
+.selected-subjects p {
+  margin: 0.75rem 0 0.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Button row stays responsive */
+.popup-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 480px) {
+  .popup-button-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .popup-button-row button {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+
+  .selected-subjects {
+    font-size: 0.875rem;
+    max-height: 50vh;
+  }
+}

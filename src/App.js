@@ -110,6 +110,8 @@ function App() {
   const [selectedElectives, setSelectedElectives] = useState({ 4: [], 5: [], 6: [], 7: [] });
   const [popup, setPopup] = useState({ visible: false, elective: null, term: null });
   const [messagePopup, setMessagePopup] = useState({ visible: false, message: "" });
+  const [showSubjects, setShowSubjects] = useState(false);
+
   
   // Log page view event when analytics is initialized
   useEffect(() => {
@@ -408,34 +410,120 @@ function App() {
         visible: true,
         type: 'success',
         title: 'Valid Selection',
-        message: [
-          `${determineMajorMinor()}`,
-          //'\nSelected Subjects:',
-         // selectedSubjects
-        ]
+        message: [`${determineMajorMinor()}`]
       });
+      setShowSubjects(false);
     }
-  };
+  };      
 
   const totalSelectedElectives = Object.values(selectedElectives).flat().length;
 
+  const handleDownloadSelection = () => {
+    const lines = [];
+  
+    lines.push("PGPM Elective Selection Report");
+    lines.push(determineMajorMinor());
+    lines.push("");
+  
+    Object.entries(selectedElectives).forEach(([term, electives]) => {
+      if (electives.length > 0) {
+        lines.push(`Term ${term}:`);
+        electives.forEach(e => {
+          lines.push(`${e.name} (${e.major})`);
+        });
+        lines.push(""); // Add an empty line after each term
+      }
+    });
+  
+    const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "PGPM_Valid_Electives.txt";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  
+
   // UI rendering helpers
   const renderPopupMessage = () => {
-    // Formats popup messages as either list or paragraph
     if (!messagePopup.message) return null;
-    
-    return Array.isArray(messagePopup.message) ? (
-      <ul className="validation-list">
-        {messagePopup.message.map((msg, index) => (
-          <li key={index} className="validation-item">
-            {msg}
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <p>{messagePopup.message}</p>
+  
+    const isSuccess = messagePopup.type === 'success';
+  
+    return (
+      <>
+        <div className="popup-message-container">
+          {Array.isArray(messagePopup.message) ? (
+            <ul className="validation-list">
+              {messagePopup.message.map((msg, index) => (
+                <li key={index} className="validation-item">{msg}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>{messagePopup.message}</p>
+          )}
+  
+          {isSuccess && showSubjects && (
+            <div className="selected-subjects">
+              <strong>Selected Subjects:</strong>
+              {Object.entries(selectedElectives).map(([term, electives]) => (
+                electives.length > 0 && (
+                  <div key={term}>
+                    <p><strong>Term {term}:</strong></p>
+                    <ul>
+                      {electives.map((e) => (
+                        <li key={e.name}>
+                          {e.name} ({e.major})
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )
+              ))}
+            </div>
+          )}
+        </div>
+  
+        {isSuccess ? (
+          <div className="popup-button-row">
+            
+            <button
+              className="secondary-button"
+              onClick={() => setShowSubjects(!showSubjects)}
+            >
+              {showSubjects ? "Hide Subjects" : "Show Subjects"}
+            </button>
+            <button
+      className="secondary-button"
+      onClick={handleDownloadSelection}
+    >
+      Download
+    </button>
+            {/* <button
+              className="close-button"
+              onClick={() => setMessagePopup({ visible: false, message: "" })}
+            >
+              Close
+            </button> */}
+          </div>
+        ) : (
+          <div className="popup-button-row">
+            <button
+              className="close-button"
+              onClick={() => setMessagePopup({ visible: false, message: "" })}
+            >
+              Close
+            </button>
+          </div>
+        )}
+      </>
     );
   };
+  
+  
+  
 
   // Main render logic
   return (
@@ -587,27 +675,23 @@ function App() {
 
       {/* Popup for Messages */}
       {messagePopup.visible && (
-        <div
-          id="popup-container"
-          className="popup-overlay"
-          onClick={handleOutsideClick}
-        >
-          <div className={`popup-content ${messagePopup.type || ''}`}>
-            <h3 className={`popup-title ${messagePopup.type || ''}`}>
-              {messagePopup.title || 'Message'}
-            </h3>
-            <div className="popup-message-container">
-              {renderPopupMessage()}
-            </div>
-            <button
-              className="close-button"
-              onClick={() => setMessagePopup({ visible: false, message: "" })}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+  <div
+    id="popup-container"
+    className="popup-overlay"
+    onClick={handleOutsideClick}
+  >
+    <div className={`popup-content ${messagePopup.type || ''}`}>
+      <h3 className={`popup-title ${messagePopup.type || ''}`}>
+        {messagePopup.title || 'Message'}
+      </h3>
+
+      {/* ✅ This renders the button and subject list */}
+      {renderPopupMessage()}
+    </div>
+  </div>
+)}
+
+
     </div>
   );
 }

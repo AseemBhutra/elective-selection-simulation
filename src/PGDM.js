@@ -109,7 +109,7 @@ function PGDM() {
         counts[major] = (counts[major] || 0) + 1;
       });
     });
-
+  
     const functionalAreas = ["Marketing", "Finance", "Operations", "Analytics", "HR"];
     const isGeneralManagement = functionalAreas.every((area) => (counts[area] || 0) >= 2);
     const majorAreas = Object.entries(counts)
@@ -118,24 +118,65 @@ function PGDM() {
     const minorAreas = Object.entries(counts)
       .filter(([area, count]) => count >= 3 && count < 6 && functionalAreas.includes(area))
       .map(([area]) => area);
-
+  
     if (isGeneralManagement) {
-      return "General Management (2 or more courses in each functional area)";
+      return {
+        text: "Specialization: General Management (Minimum two electives in each functional area)",
+        jsx: (
+          <>
+            <strong>Specialization:</strong> General Management <br />
+            <small>(Minimum two electives in each functional area)</small>
+          </>
+        )
+      };
     } else if (majorAreas.length >= 1 && minorAreas.length >= 1) {
-      return `Major: ${majorAreas[0]}, Minor: ${minorAreas[0]}`;
+      return {
+        text: `Specialization: Major in ${majorAreas[0]}, Minor in ${minorAreas[0]}`,
+        jsx: (
+          <span>
+            <strong>Specialization:</strong> Major in <strong>{majorAreas[0]}</strong>, Minor in <strong>{minorAreas[0]}</strong>
+          </span>
+        )
+      };
     } else if (majorAreas.length >= 1) {
-      return `Major: ${majorAreas[0]}`;
+      return {
+        text: `Specialization: Major in ${majorAreas[0]}`,
+        jsx: (
+          <span>
+            <strong>Specialization:</strong> Major in <strong>{majorAreas[0]}</strong>
+          </span>
+        )
+      };
     } else if (minorAreas.length >= 1) {
-      return `Minor: ${minorAreas[0]} (Need more courses for a major)`;
+      return {
+        text: `Specialization: Minor in ${minorAreas[0]} (Add more electives to qualify for a Major)`,
+        jsx: (
+          <span>
+            <strong>Specialization:</strong> Minor in <strong>{minorAreas[0]}</strong> <br />
+            <small>(Add more electives to qualify for a Major)</small>
+          </span>
+        )
+      };
     }
-    return "No major or minor yet. Keep selecting courses.";
+  
+    return {
+      text: "Specialization: Not determined yet (Please select more electives to qualify for a Major or Minor)",
+      jsx: (
+        <span>
+          <strong>Specialization:</strong> Not determined yet <br />
+          <small>Please select more electives to qualify for a Major or Minor.</small>
+        </span>
+      )
+    };
   };
+  
+  
 
   const handleDownloadSelection = () => {
     const lines = [];
   
     lines.push("PGDM Elective Selection Report");
-    lines.push(determineMajorMinor());
+    lines.push(determineMajorMinor().text);
     lines.push("");
   
     Object.entries(selectedElectives).forEach(([term, electives]) => {
@@ -158,27 +199,31 @@ function PGDM() {
   
 
   const handleCheck = () => {
+    const specialization = determineMajorMinor();
     logAnalyticsEvent('pgdm_validate_selection', {
       total_selected: Object.values(selectedElectives).flat().length,
-      outcome: determineMajorMinor()
+      outcome: specialization.text
     });
-
+  
     let validationErrors = [];
     const totalSelected = Object.values(selectedElectives).flat().length;
-    
+  
+    // Total electives validation
     if (totalSelected !== 11) {
-      validationErrors.push(`You need to select exactly 11 electives (currently selected: ${totalSelected})`);
+      validationErrors.push(`A total of 11 electives are required. You have currently selected ${totalSelected}.`);
     }
-
+  
+    // Term-wise requirements
     Object.entries(termRequirements).forEach(([term, { required }]) => {
       const selectedCount = selectedElectives[term].length;
       if (selectedCount !== required) {
         validationErrors.push(
-          `Term ${term}: You must select exactly ${required} electives (currently selected: ${selectedCount})`
+          `Term ${term}: ${required} electives required. You have selected ${selectedCount}.`
         );
       }
     });
-
+  
+    // Specialization validation
     const areaCounts = {};
     Object.values(selectedElectives).flat().forEach((elective) => {
       const majors = elective.major.split(",").map(m => m.trim());
@@ -186,23 +231,25 @@ function PGDM() {
         areaCounts[major] = (areaCounts[major] || 0) + 1;
       });
     });
-
+  
     const functionalAreas = ["Marketing", "Finance", "Operations", "Analytics", "HR"];
     const hasValidSpecialization = 
       Object.entries(areaCounts).some(([area, count]) => count >= 6 && functionalAreas.includes(area)) ||
       functionalAreas.every(area => (areaCounts[area] || 0) >= 2);
-
+  
     if (!hasValidSpecialization) {
       validationErrors.push(
-        "You must either have 6 courses in one area for a major, or at least 2 courses in each of the five functional areas (Marketing, Finance, Operations, Analytics, HR) for General Management"
+        "To qualify for a specialization, please ensure:\n" +
+        "• A minimum of 6 electives in one area (e.g., Marketing, Finance) for a Major, or\n" +
+        "• At least 2 electives in each functional area for General Management."
       );
     }
-
+  
     if (validationErrors.length > 0) {
       setMessagePopup({
         visible: true,
         type: 'error',
-        title: 'Required Changes:',
+        title: 'Please Review Your Selection:',
         message: validationErrors
       });
     } else {
@@ -210,11 +257,12 @@ function PGDM() {
         visible: true,
         type: 'success',
         title: 'Valid Selection',
-        message: [`${determineMajorMinor()}`]
+        message: [specialization.text]
       });
       setShowSubjects(false); // reset state on each validate
     }
   };
+  
 
   const handleSelectElective = (term, elective) => {
     logAnalyticsEvent('pgdm_select_elective', {
@@ -361,7 +409,7 @@ function PGDM() {
       className="secondary-button"
       onClick={() => setShowSubjects(!showSubjects)}
     >
-      {showSubjects ? "Hide Subjects" : "Show Subjects"}
+      {showSubjects ? "Hide Subjects" : "View Selected Electives"}
     </button>
     
     <button
@@ -398,7 +446,7 @@ function PGDM() {
   return (
     <div className="app-container">
       <header className="app-header sticky">
-        <h1>PGDM Elective Selection Simulation</h1>
+        <h1>PGDM Elective Selection Simulator</h1>
         <div className="header-controls">
           <button className="primary-button" onClick={handleCheck}>
             Validate
@@ -478,14 +526,15 @@ function PGDM() {
           </div>
 
           <div className="outcome-section">
-            <h2>Current Outcome</h2>
+            <h2>🎯 Your Specialization Outcome
+            </h2>
             <div className="outcome-card">
-              {determineMajorMinor()}
+              {determineMajorMinor().jsx}
             </div>
           </div>
 
           <div className="legend-section">
-            <h2>Major Categories</h2>
+            <h2>🎓 Functional Areas (Color Legend)</h2>
             <div className="legend-grid">
               {majorCategories.map(category => (
                 <div key={category.name} className="legend-item">
@@ -505,8 +554,8 @@ function PGDM() {
           onClick={handleOutsideClick}
         >
           <div className="popup-content">
-            <h3>Select Category for {popup.elective.name}</h3>
-            <p>This course is cross-listed. Please choose the category you want to count it toward:</p>
+            <h3>Choose Specialization for: {popup.elective.name}</h3>
+            <p>This course is listed under multiple specializations. Please choose the one you wish to apply it toward.</p>
             {popup.elective.major.split(",").map((category) => (
               <button
                 key={category}

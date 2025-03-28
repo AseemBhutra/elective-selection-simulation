@@ -534,7 +534,7 @@ function App() {
     // - Popups for cross-listed courses and messages
     <div className="app-container">
       <header className="app-header sticky">
-        <h1>PGPM Elective Selection Simulation</h1>
+        <h1>PGPM Elective Selection Simulator</h1>
         <div className="header-controls">
           <button className="primary-button" onClick={handleCheck}>
             Validate

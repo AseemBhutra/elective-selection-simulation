@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import { useFirebaseAnalytics } from './hooks/useFirebaseAnalytics';
 
@@ -356,6 +356,7 @@ function PGDM() {
     }    
   };
 
+  
   const handleOutsideClick = (e) => {
     if (e.target.id === "popup-container") {
       setPopup({ visible: false, elective: null, term: null });
@@ -364,6 +365,21 @@ function PGDM() {
   };
 
   const totalSelectedElectives = Object.values(selectedElectives).flat().length;
+
+  const [showButton, setShowButton] = useState(false);
+
+useEffect(() => {
+  const handleScroll = () => {
+    setShowButton(window.scrollY > 300);
+  };
+
+  window.addEventListener("scroll", handleScroll);
+  return () => window.removeEventListener("scroll", handleScroll);
+}, []);
+
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
 
   const renderPopupMessage = () => {
     if (!messagePopup.message) return null;
@@ -575,6 +591,21 @@ function PGDM() {
           </div>
         </div>
       )}
+
+{showButton && (
+  <button
+    onClick={scrollToTop}
+    className="scroll-to-top"
+    aria-label="Scroll to top"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+      viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+      strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-up h-6 w-6">
+      <path d="m5 12 7-7 7 7" />
+      <path d="M12 19V5" />
+    </svg>
+  </button>
+)}
 
       {messagePopup.visible && (
         <div

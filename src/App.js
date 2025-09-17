@@ -21,56 +21,111 @@ const firebaseConfig = {
 // - major: Department/specialization
 // - color: UI color code for visual representation
 // - crossListed: Boolean flag for courses that count toward multiple majors
+// const electivesData = {
+//   4: [
+//     { name: "Machine Learning I", major: "Analytics", color: "#FFCC99" },
+//     { name: "Web and Social Media Analytics", major: "Analytics", color: "#FFCC99" },
+//     { name: "Digital Marketing", major: "Digital Strategy, Marketing", color: "#FF9999", crossListed: true },
+//     { name: "Digital Enterprise Strategy", major: "Digital Strategy, Operations", color: "#9999FF", crossListed: true },
+//     { name: "Enterprise Resources Planning", major: "Digital Strategy, Operations", color: "#FFFF99", crossListed: true },
+//     { name: "Financial Modelling and Valuation", major: "Finance", color: "#99FF99" },
+//     { name: "Security Analysis & Portfolio Management", major: "Finance", color: "#99FF99" },
+//     { name: "Consumer Behaviour", major: "Marketing", color: "#FF9999" },
+//     { name: "Product & Brand Management", major: "Marketing", color: "#FF9999" },
+//     { name: "Project Management", major: "Operations", color: "#FFFF99" }
+//   ],
+//   5: [
+//     { name: "Machine Learning II", major: "Analytics", color: "#FFCC99" },
+//     { name: "Marketing & Retail Analytics", major: "Analytics, Marketing", color: "#FF9999", crossListed: true },
+//     { name: "Fintech", major: "Digital Strategy, Finance", color: "#99FF99", crossListed: true },
+//     { name: "Advanced Digital Marketing", major: "Digital Strategy, Marketing", color: "#FF9999", crossListed: true },
+//     { name: "Design Thinking", major: "Digital Strategy, Open Elective", color: "#9999FF", crossListed: true },
+//     { name: "B2B Marketing", major: "Marketing", color: "#FF9999" },
+//     { name: "Emotional Intelligence for Leadership", major: "Open Elective", color: "#A9A9A9" },
+//     { name: "Strategic Sourcing and Procurement", major: "Operations", color: "#FFFF99" },
+//     { name: "Supply Chain Modeling and Analysis", major: "Operations", color: "#FFFF99" }
+//   ],
+//   6: [
+//     { name: "Deep Learning & AI", major: "Analytics", color: "#FFCC99" },
+//     { name: "Big Data & Cloud Analytics", major: "Analytics, Digital Strategy", color: "#FFCC99", crossListed: true },
+//     { name: "Financial Risk Analytics", major: "Analytics, Finance", color: "#99FF99", crossListed: true },
+//     { name: "Spatial Computing in Marketing", major: "Digital Strategy, Marketing", color: "#FF9999", crossListed: true },
+//     { name: "Technology Product Management", major: "Digital Strategy, Open Elective", color: "#9999FF", crossListed: true },
+//     { name: "Financial Inclusion and Microfinance", major: "Finance", color: "#99FF99" },
+//     { name: "Customer Relationship Management", major: "Marketing", color: "#FF9999" },
+//     { name: "Negotiation and Bargaining", major: "Open Elective", color: "#A9A9A9" },
+//     { name: "Demand Planning & Forecasting", major: "Operations", color: "#FFFF99" },
+//     { name: "Service Operations Management", major: "Operations", color: "#FFFF99" }
+//   ],
+//   7: [
+//     { name: "Natural Language Processing", major: "Analytics", color: "#FFCC99" },
+//     { name: "HR Analytics", major: "Analytics, Open Elective", color: "#FFCC99", crossListed: true },
+//     { name: "Alternative Investments (0.5 credit)", major: "Finance", color: "#99FF99" },
+//     { name: "Mergers & Acquisitions", major: "Finance", color: "#99FF99" },
+//     { name: "Personal and Behavioral Finance", major: "Finance", color: "#99FF99" },
+//     { name: "Integrating Marketing Communication", major: "Marketing", color: "#FF9999" },
+//     { name: "Services Marketing", major: "Marketing", color: "#FF9999" },
+//     { name: "Business Ethics in Practice", major: "Open Elective", color: "#A9A9A9" },
+//     { name: "Game Theory", major: "Open Elective", color: "#A9A9A9" },
+//     { name: "Business Excellence for Competitive Advantage", major: "Operations", color: "#FFFF99" }
+//   ]
+// };
+
 const electivesData = {
   4: [
     { name: "Machine Learning I", major: "Analytics", color: "#FFCC99" },
     { name: "Web and Social Media Analytics", major: "Analytics", color: "#FFCC99" },
+    { name: "Marketing & Retail Analytics", major: "Analytics, Marketing", color: "#FFCC99", crossListed: true },
     { name: "Digital Marketing", major: "Digital Strategy, Marketing", color: "#FF9999", crossListed: true },
-    { name: "Digital Enterprise Strategy", major: "Digital Strategy, Operations", color: "#9999FF", crossListed: true },
+    { name: "Digital Enterprise & Strategy", major: "Digital Strategy, Operations", color: "#9999FF", crossListed: true },
     { name: "Enterprise Resources Planning", major: "Digital Strategy, Operations", color: "#FFFF99", crossListed: true },
     { name: "Financial Modelling and Valuation", major: "Finance", color: "#99FF99" },
     { name: "Security Analysis & Portfolio Management", major: "Finance", color: "#99FF99" },
-    { name: "Consumer Behaviour", major: "Marketing", color: "#FF9999" },
     { name: "Product & Brand Management", major: "Marketing", color: "#FF9999" },
-    { name: "Project Management", major: "Operations", color: "#FFFF99" }
+    { name: "Consumer Behaviour", major: "Marketing", color: "#FF9999" },
+    { name: "Supply Chain Management and Analysis (SCMA)", major: "Operations", color: "#FFFF99" }
   ],
   5: [
     { name: "Machine Learning II", major: "Analytics", color: "#FFCC99" },
+    { name: "Big Data & Cloud Analytics", major: "Analytics, Digital Strategy", color: "#FFCC99", crossListed: true },
     { name: "Marketing & Retail Analytics", major: "Analytics, Marketing", color: "#FF9999", crossListed: true },
-    { name: "Fintech", major: "Digital Strategy, Finance", color: "#99FF99", crossListed: true },
-    { name: "Advanced Digital Marketing", major: "Digital Strategy, Marketing", color: "#FF9999", crossListed: true },
+    { name: "Data Driven Marketing Strategy", major: "Digital Strategy, Marketing", color: "#FF9999", crossListed: true },
     { name: "Design Thinking", major: "Digital Strategy, Open Elective", color: "#9999FF", crossListed: true },
+    { name: "Fintech", major: "Digital Strategy, Finance", color: "#99FF99", crossListed: true },
+    { name: "Financial Management for Developing Marketing Strategy", major: "Finance, Marketing", color: "#FF9999", crossListed: true },
     { name: "B2B Marketing", major: "Marketing", color: "#FF9999" },
-    { name: "Emotional Intelligence for Leadership", major: "Open Elective", color: "#A9A9A9" },
     { name: "Strategic Sourcing and Procurement", major: "Operations", color: "#FFFF99" },
-    { name: "Supply Chain Modeling and Analysis", major: "Operations", color: "#FFFF99" }
+    { name: "Modelling and Simulation in Operations Management", major: "Operations", color: "#FFFF99" },
+    { name: "Emotional Intelligence for Leadership", major: "Open Elective", color: "#A9A9A9" }
   ],
   6: [
     { name: "Deep Learning & AI", major: "Analytics", color: "#FFCC99" },
     { name: "Big Data & Cloud Analytics", major: "Analytics, Digital Strategy", color: "#FFCC99", crossListed: true },
     { name: "Financial Risk Analytics", major: "Analytics, Finance", color: "#99FF99", crossListed: true },
-    { name: "Spatial Computing in Marketing", major: "Digital Strategy, Marketing", color: "#FF9999", crossListed: true },
     { name: "Technology Product Management", major: "Digital Strategy, Open Elective", color: "#9999FF", crossListed: true },
-    { name: "Financial Inclusion and Microfinance", major: "Finance", color: "#99FF99" },
+    { name: "Financial inclusion and Micro Finance", major: "Finance", color: "#99FF99", credits: 1 },
     { name: "Customer Relationship Management", major: "Marketing", color: "#FF9999" },
-    { name: "Negotiation and Bargaining", major: "Open Elective", color: "#A9A9A9" },
+    { name: "Spatial Computing in Marketing", major: "Marketing, Digital Strategy", color: "#FF9999", crossListed: true },
+    { name: "Service Operations (SOP)", major: "Operations", color: "#FFFF99" },
     { name: "Demand Planning & Forecasting", major: "Operations", color: "#FFFF99" },
-    { name: "Service Operations Management", major: "Operations", color: "#FFFF99" }
+    { name: "Managing Businesses in an International Context", major: "Open Elective", color: "#A9A9A9" },
+    { name: "Strategic Negotiations", major: "Open Elective", color: "#A9A9A9" },
+    { name: "Game Theory", major: "Open Elective", color: "#A9A9A9" }
   ],
   7: [
     { name: "Natural Language Processing", major: "Analytics", color: "#FFCC99" },
     { name: "HR Analytics", major: "Analytics, Open Elective", color: "#FFCC99", crossListed: true },
-    { name: "Alternative Investments (0.5 credit)", major: "Finance", color: "#99FF99" },
+    { name: "Supply Chain Analytics", major: "Analytics, Operations", color: "#FFFF99", crossListed: true },
     { name: "Mergers & Acquisitions", major: "Finance", color: "#99FF99" },
     { name: "Personal and Behavioral Finance", major: "Finance", color: "#99FF99" },
-    { name: "Integrating Marketing Communication", major: "Marketing", color: "#FF9999" },
+    { name: "Alternative Investments", major: "Finance", color: "#99FF99", credits: 1 },
+    { name: "Integrated Marketing Communication", major: "Marketing", color: "#FF9999" },
     { name: "Services Marketing", major: "Marketing", color: "#FF9999" },
+    { name: "Business Excellence for Competitive Advantage", major: "Operations", color: "#FFFF99" },
     { name: "Business Ethics in Practice", major: "Open Elective", color: "#A9A9A9" },
-    { name: "Game Theory", major: "Open Elective", color: "#A9A9A9" },
-    { name: "Business Excellence for Competitive Advantage", major: "Operations", color: "#FFFF99" }
+    { name: "Sustainability", major: "Open Elective", color: "#A9A9A9", credits: 1 }
   ]
 };
-
 
 // Defines minimum and maximum number of electives that can be selected per term
 const termLimits = {
@@ -274,8 +329,27 @@ function App() {
     setPopup({ visible: false, elective: null, term: null });
   };
 
+  // const getColorForCategory = (category) => {
+  //   // Returns color code for each major category
+  //   switch (category) {
+  //     case "Analytics":
+  //       return "#FFCC99";
+  //     case "Digital Strategy":
+  //       return "#9999FF";
+  //     case "Finance":
+  //       return "#99FF99";
+  //     case "Marketing":
+  //       return "#FF9999";
+  //     case "Open Elective":
+  //       return "#A9A9A9";
+  //     case "Operations":
+  //       return "#FFFF99";
+  //     default:
+  //       return "#e0e0e0";
+  //   }    
+  // };
+
   const getColorForCategory = (category) => {
-    // Returns color code for each major category
     switch (category) {
       case "Analytics":
         return "#FFCC99";
@@ -285,15 +359,15 @@ function App() {
         return "#99FF99";
       case "Marketing":
         return "#FF9999";
-      case "Open Elective":
-        return "#A9A9A9";
       case "Operations":
         return "#FFFF99";
+      case "Open Elective":
+        return "#A9A9A9";
       default:
         return "#e0e0e0";
     }    
   };
-
+  
   const determineMajorMinor = () => {
     // Analyzes selected courses to determine:
     // - Major(s)
@@ -637,7 +711,7 @@ const scrollToTop = () => {
             </div>
           </div>
 
-          <div className="legend-section">
+          {/* <div className="legend-section">
             <h2>Major Categories</h2>
             <div className="legend-grid">
               {[
@@ -654,7 +728,26 @@ const scrollToTop = () => {
                 </div>
               ))}
             </div>
+          </div> */}
+<div className="legend-section">
+            <h2>Major Categories</h2>
+            <div className="legend-grid">
+              {[
+                { name: "Analytics", color: "#FFCC99" },
+                { name: "Digital Strategy", color: "#9999FF" },
+                { name: "Finance", color: "#99FF99" },
+                { name: "Marketing", color: "#FF9999" },
+                { name: "Operations", color: "#FFFF99" },
+                { name: "Open Elective", color: "#A9A9A9" }
+              ].map(category => (
+                <div key={category.name} className="legend-item">
+                  <span className="color-dot" style={{ backgroundColor: category.color }}></span>
+                  <span>{category.name}</span>
+                </div>
+              ))}
+            </div>
           </div>
+
         </div>
       </div>
 

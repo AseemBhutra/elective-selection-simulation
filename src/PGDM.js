@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import { useFirebaseAnalytics } from './hooks/useFirebaseAnalytics';
 
-// Updated major categories
+// Major categories with their associated colors
 const majorCategories = [
   { name: "Marketing", color: "#FF9999" },
   { name: "Finance", color: "#99FF99" },
@@ -12,14 +12,14 @@ const majorCategories = [
   { name: "Open Elective", color: "#A9A9A9" }
 ];
 
-// Updated term requirements
+// Term requirements mapping - number of electives required per term
 const termRequirements = {
   4: { required: 5 },
   5: { required: 3 },
   6: { required: 3 }
 };
 
-// Updated electives data
+// Electives data organized by term
 const electivesData = {
   4: [
     { name: "Business Intelligence", major: "Analytics", color: "#FFCC99", credits: 3 },
@@ -70,26 +70,39 @@ const electivesData = {
   ]
 };
 
-
-
-
+// Course prerequisites mapping
 const prerequisites = {
   "Deep Learning & Natural Language Processing": ["Machine Learning"]
 };
 
+// Courses that depend on others (inverse of prerequisites)
 const dependentCourses = {
   "Machine Learning": ["Deep Learning & Natural Language Processing"]
 };
-
-
 
 function PGDM() {
   const logAnalyticsEvent = useFirebaseAnalytics();
   const [selectedElectives, setSelectedElectives] = useState({ 4: [], 5: [], 6: [] });
   const [popup, setPopup] = useState({ visible: false, elective: null, term: null });
-  const [messagePopup, setMessagePopup] = useState({ visible: false, message: "" });
+  const [messagePopup, setMessagePopup] = useState({ visible: false, message: "", type: "", title: "" });
   const [showSubjects, setShowSubjects] = useState(false);
+  const [showButton, setShowButton] = useState(false);
 
+  /**
+   * Set up scroll listener for "back to top" button
+   */
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowButton(window.scrollY > 300);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  /**
+   * Resets the simulation by clearing all selections
+   */
   const handleResetSimulation = () => {
     logAnalyticsEvent('pgdm_reset_simulation', {
       total_selected: Object.values(selectedElectives).flat().length
@@ -97,11 +110,22 @@ function PGDM() {
     setSelectedElectives({ 4: [], 5: [], 6: [] });
   };
 
-  const showMessagePopup = (message) => {
-    setMessagePopup({ visible: true, message });
+  /**
+   * Shows message popup with provided details
+   * @param {string|string[]} message - Message or array of messages to display
+   * @param {string} type - Type of message (success, error, info)
+   * @param {string} title - Title for the popup
+   */
+  const showMessagePopup = (message, type = "info", title = "Message") => {
+    setMessagePopup({ visible: true, message, type, title });
   };
 
+  /**
+   * Analyzes selected courses to determine specialization (Major/Minor)
+   * @returns {Object} Specialization details with text and JSX representation
+   */
   const determineMajorMinor = () => {
+    // Count electives by major area
     const counts = {};
     Object.values(selectedElectives).flat().forEach((elective) => {
       const majors = elective.major.split(",").map(m => m.trim());
@@ -170,9 +194,15 @@ function PGDM() {
     };
   };
   
-  
-
+  /**
+   * Creates and downloads a text file with the selection report
+   */
   const handleDownloadSelection = () => {
+    logAnalyticsEvent('pgdm_download_selection', {
+      total_selected: Object.values(selectedElectives).flat().length,
+      specialization: determineMajorMinor().text
+    });
+
     const lines = [];
   
     lines.push("PGDM Elective Selection Report");
@@ -195,9 +225,13 @@ function PGDM() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    window.URL.revokeObjectURL(url); // Clean up
   };
   
-
+  /**
+   * Validates the current elective selection
+   * Checks total count, per-term requirements, and specialization validity
+   */
   const handleCheck = () => {
     const specialization = determineMajorMinor();
     logAnalyticsEvent('pgdm_validate_selection', {
@@ -246,117 +280,216 @@ function PGDM() {
     }
   
     if (validationErrors.length > 0) {
-      setMessagePopup({
-        visible: true,
-        type: 'error',
-        title: 'Please Review Your Selection:',
-        message: validationErrors
-      });
+      showMessagePopup(validationErrors, 'error', 'Please Review Your Selection:');
     } else {
-      setMessagePopup({
-        visible: true,
-        type: 'success',
-        title: 'Valid Selection',
-        message: [specialization.text]
-      });
+      showMessagePopup([specialization.text], 'success', 'Valid Selection');
       setShowSubjects(false); // reset state on each validate
     }
   };
-  
 
+  /**
+   * Checks if an elective can be removed based on dependencies
+   * @param {Object} elective - The elective to check
+   * @param {Array} allSelectedCourses - All currently selected courses
+   * @returns {Object} Result with status and message
+   */
+  const canRemoveElective = (elective, allSelectedCourses) => {
+    const dependentsList = dependentCourses[elective.name] || [];
+    const hasSelectedDependents = allSelectedCourses.some(
+      course => dependentsList.includes(course.name)
+    );
+
+    if (hasSelectedDependents) {
+      return {
+        canRemove: false,
+        message: `Cannot remove ${elective.name} as it is a prerequisite for other selected courses. Please remove the dependent courses first: ${dependentsList.join(", ")}`
+      };
+    }
+
+    return { canRemove: true };
+  };
+
+  /**
+   * Checks if prerequisites are satisfied for an elective
+   * @param {Object} elective - The elective to check
+   * @param {Array} allSelectedCourses - All currently selected courses
+   * @returns {Object} Result with status and message
+   */
+  const arePrerequisitesSatisfied = (elective, allSelectedCourses) => {
+    if (!prerequisites[elective.name]) {
+      return { satisfied: true };
+    }
+
+    const requiredCourses = prerequisites[elective.name];
+    const allSelectedCourseNames = allSelectedCourses.map(e => e.name);
+    const missingPrerequisites = requiredCourses.filter(
+      course => !allSelectedCourseNames.includes(course)
+    );
+
+    if (missingPrerequisites.length > 0) {
+      return {
+        satisfied: false,
+        message: `You need to select ${missingPrerequisites.join(", ")} before selecting ${elective.name}`
+      };
+    }
+
+    return { satisfied: true };
+  };
+
+  /**
+   * Checks if term limit is reached
+   * @param {number} term - The term to check
+   * @param {Array} termElectives - Currently selected electives for the term
+   * @returns {Object} Result with status and message
+   */
+  const isTermLimitReached = (term, termElectives) => {
+    const termRequirement = termRequirements[term].required;
+    if (termElectives.length >= termRequirement) {
+      return {
+        limitReached: true,
+        message: `Term ${term} requires exactly ${termRequirement} electives. Please remove one before adding another.`
+      };
+    }
+    return { limitReached: false };
+  };
+
+  /**
+   * Initial handler for elective selection/deselection
+   * Performs initial checks and opens popup for cross-listed courses
+   * @param {number} term - Term number
+   * @param {Object} elective - Elective object
+   */
   const handleSelectElective = (term, elective) => {
-    logAnalyticsEvent('pgdm_select_elective', {
+    const isSelected = selectedElectives[term].some(e => e.name === elective.name);
+    
+    // Log analytics event
+    logAnalyticsEvent('pgdm_elective_interaction', {
+      action: isSelected ? 'deselect' : 'select',
       term,
       elective_name: elective.name,
       elective_major: elective.major,
       is_cross_listed: elective.crossListed || false
     });
 
+    // If course is already selected, attempt to deselect it
+    if (isSelected) {
+      handleElectiveDeselection(term, elective);
+      return;
+    }
+    
+    // If course is cross-listed and not selected, show the popup
     if (elective.crossListed) {
       setPopup({ visible: true, elective, term });
-    } else {
-      toggleElectiveSelection(term, elective);
+      return;
     }
+    
+    // Otherwise proceed with selection
+    handleElectiveSelection(term, elective);
   };
 
-  const toggleElectiveSelection = (term, elective) => {
-    setSelectedElectives((prev) => {
+  /**
+   * Handles the deselection of an elective
+   * @param {number} term - Term number
+   * @param {Object} elective - Elective object
+   */
+  const handleElectiveDeselection = (term, elective) => {
+    const allSelectedCourses = Object.values(selectedElectives).flat();
+    const result = canRemoveElective(elective, allSelectedCourses);
+    
+    if (!result.canRemove) {
+      showMessagePopup(result.message);
+      return;
+    }
+    
+    // Remove the elective
+    setSelectedElectives(prev => {
       const updatedSelection = { ...prev };
-      const termRequirement = termRequirements[term].required;
-      const allSelectedCourses = Object.values(prev).flat();
-
-      if (updatedSelection[term].some(e => e.name === elective.name)) {
-        const dependentsList = dependentCourses[elective.name] || [];
-        const hasSelectedDependents = allSelectedCourses.some(
-          course => dependentsList.includes(course.name)
-        );
-
-        if (hasSelectedDependents) {
-          showMessagePopup(
-            `Cannot remove ${elective.name} as it is a prerequisite for other selected courses. Please remove the dependent courses first: ${dependentsList.join(", ")}`
-          );
-          return updatedSelection;
-        }
-
-        updatedSelection[term] = updatedSelection[term].filter(
-          (item) => item.name !== elective.name
-        );
-      } else {
-        if (prerequisites[elective.name]) {
-          const requiredCourses = prerequisites[elective.name];
-          const allSelectedCourseNames = allSelectedCourses.map(e => e.name);
-          const missingPrerequisites = requiredCourses.filter(
-            course => !allSelectedCourseNames.includes(course)
-          );
-
-          if (missingPrerequisites.length > 0) {
-            showMessagePopup(
-              `You need to select ${missingPrerequisites.join(", ")} before selecting ${elective.name}`
-            );
-            return updatedSelection;
-          }
-        }
-
-        if (updatedSelection[term].length >= termRequirement) {
-          showMessagePopup(
-            `Term ${term} requires exactly ${termRequirement} electives. Please remove one before adding another.`
-          );
-          return updatedSelection;
-        }
-
-        updatedSelection[term] = [...updatedSelection[term], elective];
-      }
-
+      updatedSelection[term] = updatedSelection[term].filter(
+        (item) => item.name !== elective.name
+      );
       return updatedSelection;
+    });
+    
+    logAnalyticsEvent('pgdm_elective_deselected', {
+      term,
+      elective_name: elective.name,
+      elective_major: elective.major
+    });
+  };
+  
+  /**
+   * Handles the selection of an elective
+   * @param {number} term - Term number
+   * @param {Object} elective - Elective object
+   */
+  const handleElectiveSelection = (term, elective) => {
+    const allSelectedCourses = Object.values(selectedElectives).flat();
+    
+    // Check prerequisites
+    const prerequisiteCheck = arePrerequisitesSatisfied(elective, allSelectedCourses);
+    if (!prerequisiteCheck.satisfied) {
+      showMessagePopup(prerequisiteCheck.message);
+      return;
+    }
+    
+    // Check term limits
+    const termLimitCheck = isTermLimitReached(term, selectedElectives[term]);
+    if (termLimitCheck.limitReached) {
+      showMessagePopup(termLimitCheck.message);
+      return;
+    }
+    
+    // Add the elective
+    setSelectedElectives(prev => {
+      const updatedSelection = { ...prev };
+      updatedSelection[term] = [...updatedSelection[term], elective];
+      return updatedSelection;
+    });
+    
+    logAnalyticsEvent('pgdm_elective_selected', {
+      term,
+      elective_name: elective.name,
+      elective_major: elective.major
     });
   };
 
+  /**
+   * Handles the selection of a category for cross-listed courses
+   * @param {string} category - Selected category
+   */
   const handlePopupSelection = (category) => {
     const { elective, term } = popup;
+    
     logAnalyticsEvent('pgdm_cross_listed_selection', {
       elective_name: elective.name,
       selected_category: category,
       term
     });
 
-    const updatedElective = { ...elective, major: category, color: getColorForCategory(category) };
-    toggleElectiveSelection(term, updatedElective);
+    const updatedElective = { 
+      ...elective, 
+      major: category, 
+      color: getColorForCategory(category) 
+    };
+    
+    handleElectiveSelection(term, updatedElective);
     setPopup({ visible: false, elective: null, term: null });
   };
 
+  /**
+   * Gets the color code for a specific category
+   * @param {string} category - Category name
+   * @returns {string} Color code
+   */
   const getColorForCategory = (category) => {
-    switch (category) {
-      case "Analytics": return "#FFCC99";
-      case "Finance": return "#99FF99";
-      case "Marketing": return "#FF9999";
-      case "Operations": return "#FFFF99";
-      case "HR": return "#FF99FF";
-      case "Open Elective": return "#A9A9A9";
-      default: return "#e0e0e0";
-    }    
+    const foundCategory = majorCategories.find(cat => cat.name === category);
+    return foundCategory ? foundCategory.color : "#e0e0e0";
   };
 
-  
+  /**
+   * Handles clicks outside of popup to close it
+   * @param {Event} e - Click event
+   */
   const handleOutsideClick = (e) => {
     if (e.target.id === "popup-container") {
       setPopup({ visible: false, elective: null, term: null });
@@ -364,23 +497,17 @@ function PGDM() {
     }
   };
 
-  const totalSelectedElectives = Object.values(selectedElectives).flat().length;
-
-  const [showButton, setShowButton] = useState(false);
-
-useEffect(() => {
-  const handleScroll = () => {
-    setShowButton(window.scrollY > 300);
+  /**
+   * Scrolls to top of the page smoothly
+   */
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  window.addEventListener("scroll", handleScroll);
-  return () => window.removeEventListener("scroll", handleScroll);
-}, []);
-
-const scrollToTop = () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-};
-
+  /**
+   * Renders message popup content based on messagePopup state
+   * @returns {React.ReactNode}
+   */
   const renderPopupMessage = () => {
     if (!messagePopup.message) return null;
   
@@ -418,46 +545,37 @@ const scrollToTop = () => {
           )}
         </div>
   
-        
         {isSuccess ? (
-  <div className="popup-button-row">
-    <button
-      className="secondary-button"
-      onClick={() => setShowSubjects(!showSubjects)}
-    >
-      {showSubjects ? "Hide Subjects" : "View Selected Electives"}
-    </button>
-    
-    <button
-      className="secondary-button"
-      onClick={handleDownloadSelection}
-    >
-      Download
-    </button>
-
-    {/* <button
-      className="close-button"
-      onClick={() => setMessagePopup({ visible: false, message: "" })}
-    >
-      Close
-    </button> */}
-  </div>
-) 
-: (
-  <div className="popup-button-row">
-    <button
-      className="close-button"
-      onClick={() => setMessagePopup({ visible: false, message: "" })}
-    >
-      Close
-    </button>
-  </div>
-)
-}
-
+          <div className="popup-button-row">
+            <button
+              className="secondary-button"
+              onClick={() => setShowSubjects(!showSubjects)}
+            >
+              {showSubjects ? "Hide Subjects" : "View Selected Electives"}
+            </button>
+            
+            <button
+              className="secondary-button"
+              onClick={handleDownloadSelection}
+            >
+              Download
+            </button>
+          </div>
+        ) : (
+          <div className="popup-button-row">
+            <button
+              className="close-button"
+              onClick={() => setMessagePopup({ visible: false, message: "" })}
+            >
+              Close
+            </button>
+          </div>
+        )}
       </>
     );
   };
+
+  const totalSelectedElectives = Object.values(selectedElectives).flat().length;
 
   return (
     <div className="app-container">
@@ -542,8 +660,7 @@ const scrollToTop = () => {
           </div>
 
           <div className="outcome-section">
-            <h2>🎯 Your Specialization Outcome
-            </h2>
+            <h2>🎯 Your Specialization Outcome</h2>
             <div className="outcome-card">
               {determineMajorMinor().jsx}
             </div>
@@ -592,20 +709,20 @@ const scrollToTop = () => {
         </div>
       )}
 
-{showButton && (
-  <button
-    onClick={scrollToTop}
-    className="scroll-to-top"
-    aria-label="Scroll to top"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-      viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-      strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-up h-6 w-6">
-      <path d="m5 12 7-7 7 7" />
-      <path d="M12 19V5" />
-    </svg>
-  </button>
-)}
+      {showButton && (
+        <button
+          onClick={scrollToTop}
+          className="scroll-to-top"
+          aria-label="Scroll to top"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+            strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-up h-6 w-6">
+            <path d="m5 12 7-7 7 7" />
+            <path d="M12 19V5" />
+          </svg>
+        </button>
+      )}
 
       {messagePopup.visible && (
         <div

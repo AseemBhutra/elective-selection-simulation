@@ -1,15 +1,9 @@
 /* Import modern fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
-
-/* Import animations */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import './styles/animations.css';
 
 :root {
-  /* Typography */
-  --font-primary: 'Outfit', sans-serif;
-  --font-secondary: 'Inter', sans-serif;
-  
-  /* Updated color palette */
+  --font-primary: 'Inter', sans-serif;
   --color-primary: #2563eb;
   --color-primary-dark: #1d4ed8;
   --color-gray-50: #f8fafc;
@@ -26,75 +20,82 @@
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, var(--color-gray-50) 0%, var(--color-gray-100) 100%);
-  padding: 0;
-  overflow: hidden; /* Ensures no scrolling */
-  font-family: var(--font-secondary);
+  padding: 2rem;
+  overflow: hidden;
+  font-family: var(--font-primary);
 }
 
 .welcome-content {
   text-align: center;
-  max-width: 600px;
-  padding: 2rem;
+  max-width: 560px;
+}
+
+.welcome-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  animation: fadeInDown 0.4s ease-out;
 }
 
 .welcome-content h1 {
   font-family: var(--font-primary);
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(2rem, 4vw, 2.75rem);
   font-weight: 700;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   color: var(--color-gray-900);
-  line-height: 1.2;
+  line-height: 1.15;
   letter-spacing: -0.02em;
-  animation: fadeInDown 0.5s ease-out;
 }
 
 .welcome-subtitle {
-  font-size: clamp(1rem, 1.5vw, 1.125rem);
+  font-size: clamp(0.9375rem, 1.5vw, 1.0625rem);
   color: var(--color-gray-700);
   margin-bottom: 2rem;
   line-height: 1.6;
   font-weight: 400;
-  animation: fadeIn 0.5s ease-out 0.2s both;
+}
+
+.welcome-features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin-bottom: 2rem;
+  text-align: left;
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.welcome-feature {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.875rem;
+  color: var(--color-gray-700);
+  font-weight: 500;
+}
+
+.feature-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
 }
 
 .welcome-content .primary-button {
   font-family: var(--font-primary);
   font-size: 1rem;
-  font-weight: 500;
-  padding: 0.875rem 1.75rem;
+  font-weight: 600;
+  padding: 0.875rem 2rem;
   background: var(--color-primary);
   color: white;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  animation: fadeInUp 0.5s ease-out 0.3s both;
-  position: relative;
-  overflow: hidden;
+  transition: all 0.25s ease;
 }
 
 .welcome-content .primary-button:hover {
   transform: translateY(-2px);
   background: var(--color-primary-dark);
   box-shadow: 0 10px 20px -10px rgba(37, 99, 235, 0.5);
-}
-
-.welcome-content .primary-button::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 120%;
-  height: 120%;
-  background: rgba(255, 255, 255, 0.2);
-  transform: translate(-50%, -50%) scale(0);
-  border-radius: 50%;
-  transition: transform 0.5s ease-out;
-}
-
-.welcome-content .primary-button:active::after {
-  transform: translate(-50%, -50%) scale(1);
-  opacity: 0;
 }
 
 /* Styles for the disclaimer modal */

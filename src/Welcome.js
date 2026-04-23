@@ -9,7 +9,7 @@ function Welcome() {
   const [showModal, setShowModal] = useState(false);
 
   const handleStartSimulation = () => {
-    setShowModal(true); // Show disclaimer popup
+    setShowModal(true);
   };
 
   const handleProceed = () => {
@@ -21,38 +21,50 @@ function Welcome() {
   return (
     <div className="welcome-container">
       <div className="welcome-content">
-        <h1 className="animate fade-in-down">Welcome to Elective Selection Simulator</h1>
+        <div className="welcome-icon">📚</div>
+        <h1 className="animate fade-in-down">Elective Selection Simulator</h1>
         <p className="welcome-subtitle animate fade-in delay-1">
-          Make informed decisions about your academic journey
+          Explore elective combinations, see your specialization outcome in real-time, and plan your academic journey with confidence.
         </p>
+        <div className="welcome-features animate fade-in delay-2">
+          <div className="welcome-feature">
+            <span className="feature-icon">🎯</span>
+            <span>See specialization outcomes live</span>
+          </div>
+          <div className="welcome-feature">
+            <span className="feature-icon">⚡</span>
+            <span>Prerequisite &amp; rule validation</span>
+          </div>
+          <div className="welcome-feature">
+            <span className="feature-icon">📄</span>
+            <span>Download your selection report</span>
+          </div>
+        </div>
         <button 
-          className="primary-button animate fade-in-up delay-2"
+          className="primary-button animate fade-in-up delay-3"
           onClick={handleStartSimulation}
         >
-          Get Started →
+          Get Started
         </button>
       </div>
       
-      {/* Disclaimer Popup */}
       {showModal && (
-  <div className="modal-overlay">
-    <div className="modal-content">
-      <h2>⚠️ Disclaimer</h2>
-      <p>
-        This tool helps you explore elective choices but does <strong>not</strong> finalize your selection.
-      </p>
-      <p>
-        To confirm your electives, submit the official <strong>Google Form</strong> provided by the <strong>Program Office (PO)</strong>.
-      </p>
-      <div className="modal-buttons">
-        <button className="proceed-btn" onClick={handleProceed}>I Understand</button>
-        <button className="cancel-btn" onClick={() => setShowModal(false)}>Cancel</button>
-      </div>
-    </div>
-  </div>
-)}
-
-
+        <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowModal(false)}>
+          <div className="modal-content">
+            <h2>Disclaimer</h2>
+            <p>
+              This tool helps you <strong>explore</strong> elective choices but does <strong>not</strong> finalize your selection.
+            </p>
+            <p>
+              To confirm your electives, submit the official <strong>Google Form</strong> provided by the <strong>Program Office</strong>.
+            </p>
+            <div className="modal-buttons">
+              <button className="proceed-btn" onClick={handleProceed}>I Understand, Continue</button>
+              <button className="cancel-btn" onClick={() => setShowModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

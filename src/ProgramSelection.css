@@ -1,100 +1,145 @@
-/* Import the same fonts if not already imported globally */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
-
-/* Import animations */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import './styles/animations.css';
 
 .program-selection-container {
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, var(--color-gray-50) 0%, var(--color-gray-100) 100%);
-  padding: 0 !important; /* Remove extra padding */
-  margin: 0;
-  overflow: hidden;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 2rem;
   box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
 }
-
-
 
 .program-selection-content {
-  max-width: 600px;
+  max-width: 800px;
   width: 100%;
   text-align: center;
-  padding: 2rem;
-  box-sizing: border-box; /* Ensures no unexpected layout shift */
-  overflow: hidden;
 }
 
+.ps-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  transition: color 0.2s;
+}
+.ps-back-btn:hover {
+  color: #0f172a;
+}
 
 .program-selection-content h1 {
-  font-family: var(--font-primary);
-  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
   font-weight: 700;
-  margin-bottom: 2.5rem;
-  color: var(--color-gray-900);
+  margin-bottom: 0.5rem;
+  color: #0f172a;
   letter-spacing: -0.02em;
 }
 
-.program-buttons {
-  display: flex;
-  justify-content: center;
+.ps-subtitle {
+  font-size: 1rem;
+  color: #64748b;
+  margin-bottom: 2.5rem;
+  line-height: 1.5;
+}
+
+.program-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
-  margin: 0 auto;
-  max-width: 450px;
-  padding: 0 1rem;
 }
 
-.program-button {
-  flex: 1;
-  max-width: 180px;
-  padding: 1.5rem;
-  font-family: var(--font-primary);
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--color-gray-800);
+.program-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  padding: 1.75rem;
   background: white;
-  border: none;
-  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  font-family: 'Inter', sans-serif;
+  transition: all 0.25s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
 }
-
-.program-button:hover {
+.program-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-              0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-color: #2563eb;
+  box-shadow: 0 12px 24px -6px rgba(37,99,235,.15);
 }
 
-/* Media Queries for different screen sizes */
+.card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+}
+
+.card-subtitle {
+  font-size: 0.8125rem;
+  color: #64748b;
+  margin-bottom: 1.25rem;
+}
+
+.card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  width: 100%;
+  margin-bottom: 1.25rem;
+}
+
+.card-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.375rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.card-detail:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+}
+
+.detail-value {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #334155;
+  text-align: right;
+  max-width: 60%;
+}
+
+.card-cta {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #2563eb;
+  margin-top: auto;
+}
+
+/* Responsive */
 @media (max-width: 640px) {
-  .program-buttons {
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
+  .program-cards {
+    grid-template-columns: 1fr;
   }
-
-  .program-button {
-    width: 100%;
-    max-width: 200px;
-    padding: 1.25rem;
-  }
-
-  .program-selection-content {
+  .program-selection-container {
     padding: 1.5rem;
-  }
-}
-
-@media (min-width: 641px) and (max-width: 1024px) {
-  .program-buttons {
-    gap: 2rem;
-  }
-
-  .program-button {
-    min-width: 160px;
   }
 }
 
